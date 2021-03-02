@@ -617,7 +617,11 @@ namespace CosmosDbAdventureWorks.data_loader
                              async () =>
                              {
                                  await LoadDatabaseV4ProductMeta(database);
-                             } //close 3rd Action
+                             }, //close 3rd Action
+                             async () =>
+                             {
+                                 await LoadDatabaseV4SalesByCategory(database);
+                             } //close 4th Action
                          ); //close parallel.invoke
             #endregion
 
@@ -685,6 +689,16 @@ namespace CosmosDbAdventureWorks.data_loader
             Console.WriteLine("{0} productMeta added to [{1}] container\n", count, containerProductMeta.Id);
         }
 
+        public static async Task LoadDatabaseV4SalesByCategory(Database database)
+        {
+            // *** salesByCategory ***
+            // Create a new salesByCategory container
+            Container containerSalesByCategory = await database.CreateContainerIfNotExistsAsync("salesByCategory", "/categoryName");
+            Console.WriteLine("Created Container: {0}\n", containerSalesByCategory.Id);
+
+            // Data gets loaded into salesByCategory container by a change feed process
+
+        }
         #endregion
     }
 }
