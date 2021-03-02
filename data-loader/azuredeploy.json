@@ -1,0 +1,607 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "accountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Cosmos DB account name, max length 44 characters, lowercase"
+      },
+      "defaultValue": "[format('cosmicworks-{0}', uniqueString(resourceGroup().id))]"
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location for the Cosmos DB account."
+      },
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "autoscaleMaxThroughput": {
+      "type": "int",
+      "minValue": 4000,
+      "maxValue": 1000000,
+      "metadata": {
+        "description": "Maximum throughput when using Autoscale Throughput Policy for the database"
+      },
+      "defaultValue": 4000
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2020-04-01",
+      "name": "[parameters('accountName')]",
+      "location": "[parameters('location')]",
+      "kind": "GlobalDocumentDB",
+      "properties": {
+        "databaseAccountOfferType": "Standard",
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session"
+        },
+        "locations": [
+          {
+            "locationName": "[parameters('location')]",
+            "failoverPriority": 0,
+            "isZoneRedundant": false
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/database-v1', parameters('accountName'))]",
+      "properties": {
+        "resource": {
+          "id": "database-v1"
+        },
+        "options": {
+          "autoscaleSettings": {
+            "maxThroughput": "[parameters('autoscaleMaxThroughput')]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/database-v2', parameters('accountName'))]",
+      "properties": {
+        "resource": {
+          "id": "database-v2"
+        },
+        "options": {
+          "autoscaleSettings": {
+            "maxThroughput": "[parameters('autoscaleMaxThroughput')]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/database-v3', parameters('accountName'))]",
+      "properties": {
+        "resource": {
+          "id": "database-v3"
+        },
+        "options": {
+          "autoscaleSettings": {
+            "maxThroughput": "[parameters('autoscaleMaxThroughput')]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/database-v4', parameters('accountName'))]",
+      "properties": {
+        "resource": {
+          "id": "database-v4"
+        },
+        "options": {
+          "autoscaleSettings": {
+            "maxThroughput": "[parameters('autoscaleMaxThroughput')]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/customer', format('{0}/database-v1', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "customer",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v1', parameters('accountName')), '/')[0], split(format('{0}/database-v1', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/customerAddress', format('{0}/database-v1', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "customerAddress",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v1', parameters('accountName')), '/')[0], split(format('{0}/database-v1', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/customerPassword', format('{0}/database-v1', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "customerPassword",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v1', parameters('accountName')), '/')[0], split(format('{0}/database-v1', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/product', format('{0}/database-v1', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "product",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v1', parameters('accountName')), '/')[0], split(format('{0}/database-v1', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/productCategory', format('{0}/database-v1', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "productCategory",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v1', parameters('accountName')), '/')[0], split(format('{0}/database-v1', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/productTag', format('{0}/database-v1', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "productTag",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v1', parameters('accountName')), '/')[0], split(format('{0}/database-v1', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/productTags', format('{0}/database-v1', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "productTags",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v1', parameters('accountName')), '/')[0], split(format('{0}/database-v1', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/salesOrder', format('{0}/database-v1', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "salesOrder",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v1', parameters('accountName')), '/')[0], split(format('{0}/database-v1', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/salesOrderDetail', format('{0}/database-v1', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "salesOrderDetail",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v1', parameters('accountName')), '/')[0], split(format('{0}/database-v1', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/customer', format('{0}/database-v2', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "customer",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v2', parameters('accountName')), '/')[0], split(format('{0}/database-v2', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/product', format('{0}/database-v2', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "product",
+          "partitionKey": {
+            "paths": [
+              "/categoryId"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v2', parameters('accountName')), '/')[0], split(format('{0}/database-v2', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/productCategory', format('{0}/database-v2', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "productCategory",
+          "partitionKey": {
+            "paths": [
+              "/type"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v2', parameters('accountName')), '/')[0], split(format('{0}/database-v2', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/productTag', format('{0}/database-v2', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "productTag",
+          "partitionKey": {
+            "paths": [
+              "/type"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v2', parameters('accountName')), '/')[0], split(format('{0}/database-v2', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/salesOrder', format('{0}/database-v2', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "salesOrder",
+          "partitionKey": {
+            "paths": [
+              "/customerId"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v2', parameters('accountName')), '/')[0], split(format('{0}/database-v2', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/customer', format('{0}/database-v3', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "customer",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v3', parameters('accountName')), '/')[0], split(format('{0}/database-v3', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/product', format('{0}/database-v3', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "product",
+          "partitionKey": {
+            "paths": [
+              "/categoryId"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v3', parameters('accountName')), '/')[0], split(format('{0}/database-v3', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/productCategory', format('{0}/database-v3', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "productCategory",
+          "partitionKey": {
+            "paths": [
+              "/type"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v3', parameters('accountName')), '/')[0], split(format('{0}/database-v3', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/productTag', format('{0}/database-v3', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "productTag",
+          "partitionKey": {
+            "paths": [
+              "/type"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v3', parameters('accountName')), '/')[0], split(format('{0}/database-v3', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/salesOrder', format('{0}/database-v3', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "salesOrder",
+          "partitionKey": {
+            "paths": [
+              "/customerId"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v3', parameters('accountName')), '/')[0], split(format('{0}/database-v3', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/customer', format('{0}/database-v4', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "customer",
+          "partitionKey": {
+            "paths": [
+              "/customerId"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v4', parameters('accountName')), '/')[0], split(format('{0}/database-v4', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/product', format('{0}/database-v4', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "product",
+          "partitionKey": {
+            "paths": [
+              "/categoryId"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v4', parameters('accountName')), '/')[0], split(format('{0}/database-v4', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/productMeta', format('{0}/database-v4', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "productMeta",
+          "partitionKey": {
+            "paths": [
+              "/type"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v4', parameters('accountName')), '/')[0], split(format('{0}/database-v4', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2020-04-01",
+      "name": "[format('{0}/salesByCategory', format('{0}/database-v4', parameters('accountName')))]",
+      "properties": {
+        "resource": {
+          "id": "salesByCategory",
+          "partitionKey": {
+            "paths": [
+              "/categoryId"
+            ],
+            "kind": "Hash"
+          }
+        },
+        "options": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', split(format('{0}/database-v4', parameters('accountName')), '/')[0], split(format('{0}/database-v4', parameters('accountName')), '/')[1])]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]"
+      ]
+    }
+  ]
+}
