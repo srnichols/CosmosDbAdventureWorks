@@ -1,8 +1,10 @@
-# CosmicWorks
+# CosmosDb-AdventureWorks data
 
 How to migrate a relational data model to Azure Cosmos DB, a distributed, horizontally scalable, NoSQL database.
 
-This repo contains a Visual Studio solution with three projects in it:
+This repo contains a Visual Studio solution with four projects in it:
+
+* **data-loader**: This contains an app that allows you to populate all sample data models from v1 to v4
 
 * **modeling-demos**: This contains the main app that shows the evolution of the data models from v1 to v4
 
@@ -17,15 +19,15 @@ This repo contains a Visual Studio solution with three projects in it:
 You can download all of the data for each of the 4 versions of the Cosmos DB databases as it progresses through its evolution from the data folder in this repository.
 You can see the contents of these storage containers below.
 
-* [Cosmic Works version 1](https://github.com/AzureCosmosDB/CosmicWorks/tree/master/data/cosmic-works-v1)
+* [Cosmic Works version 1](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v1)
 
-* [Cosmic Works version 2](https://github.com/AzureCosmosDB/CosmicWorks/tree/master/data/cosmic-works-v2)
+* [Cosmic Works version 2](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v2)
 
-* [Cosmic Works version 3](https://github.com/AzureCosmosDB/CosmicWorks/tree/master/data/cosmic-works-v3)
+* [Cosmic Works version 3](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v3)
 
-* [Cosmic Works version 4](https://github.com/AzureCosmosDB/CosmicWorks/tree/master/data/cosmic-works-v4)
+* [Cosmic Works version 4](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v4)
 
-You can also [download a bak file](https://github.com/AzureCosmosDB/CosmicWorks/tree/master/data/adventure-works-2017) for the original Adventure Works 2017 database this session and app is built upon.
+You can also [download a bak file](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/adventure-works-2017) for the original Adventure Works 2017 database this session and app is built upon.
 
 ## Provision the four versions of the Cosmos databases
 
@@ -36,5 +38,5 @@ To improve the performance of the import process you may want to increase the th
 
 ## Loading data
 
-If you want to load the data for each of these database versions into Cosmos you can use the [Data Migration Tool](https://docs.microsoft.com/en-us/azure/cosmos-db/import-data) or 
+If you want to load the data for each of these database versions into Cosmos you can use the the Data Loader project or [Data Migration Tool](https://docs.microsoft.com/en-us/azure/cosmos-db/import-data) or 
 [Azure Data Factory](https://docs.microsoft.com/en-us/azure/data-factory/connector-azure-cosmos-db)
