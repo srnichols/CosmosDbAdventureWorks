@@ -9,7 +9,7 @@ This repo contains a Visual Studio solution with four projects in it:
 
 * **modeling-demos**: This contains the app that shows the evolution of the data models from database v1 to v4 i.e. reshaping the relational data in stages into CosmosDb. 
 
-* **change-feed-categories**: This project uses change feed processor to monitor the product categories container for changes and then propagates those to the products container.
+* **change-feed-categories**: This project uses change feed processor to monitor the product categories container for changes and then propagates those to the products container. 
 
 * **change-feed-category-sales**: This project uses change feed processor to maintain a materialized view aggregate of total sales for each product category by monitoring the customer container for new orders and then updating the salesByCategory container with the new sales totals.
 
