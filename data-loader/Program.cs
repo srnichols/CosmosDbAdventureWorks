@@ -28,7 +28,6 @@ namespace CosmosDbAdventureWorks.data_loader
         // The Cosmos client instance
         private static readonly CosmosClient client = new CosmosClient(uri, key);
 
-
         public static async Task Main(string[] args)
         {
             bool exit = false;
@@ -50,7 +49,6 @@ namespace CosmosDbAdventureWorks.data_loader
                     //Console.Clear();
                     Console.WriteLine($"[a]   Load database-v1");
                     await LoadDatabaseV1Async();
-                    Console.WriteLine("Database [{0}] fully loaded\n", "database-v1");
                     Console.WriteLine("Press any key to exit...");
                     Console.ReadKey();
                 }
@@ -59,7 +57,6 @@ namespace CosmosDbAdventureWorks.data_loader
                     //Console.Clear();
                     Console.WriteLine($"[b]   Load database-v2");
                     await LoadDatabaseV2Async();
-                    Console.WriteLine("Database [{0}] fully loaded\n", "database-v2");
                     Console.WriteLine("Press any key to exit...");
                     Console.ReadKey();
                 }
@@ -68,7 +65,6 @@ namespace CosmosDbAdventureWorks.data_loader
                     //Console.Clear();
                     Console.WriteLine($"[c]   Load database-v3");
                     await LoadDatabaseV3Async();
-                    Console.WriteLine("Database [{0}] fully loaded\n", "database-v3");
                     Console.WriteLine("Press any key to exit...");
                     Console.ReadKey();
                 }
@@ -77,7 +73,6 @@ namespace CosmosDbAdventureWorks.data_loader
                     //Console.Clear();
                     Console.WriteLine($"[d]   Load database-v4");
                     await LoadDatabaseV4Async();
-                    Console.WriteLine("Database [{0}] fully loaded\n", "database-v4");
                     Console.WriteLine("Press any key to exit...");
                     Console.ReadKey();
                 }
@@ -368,8 +363,6 @@ namespace CosmosDbAdventureWorks.data_loader
                              } //close fith Action
                          ); //close parallel.invoke
             #endregion
-
-            Console.WriteLine("Database [{0}] fully loaded\n", database.Id);
         }
 
         #region LoadDatabaseV2-Containers
@@ -511,7 +504,6 @@ namespace CosmosDbAdventureWorks.data_loader
                          ); //close parallel.invoke
             #endregion
 
-            Console.WriteLine("Database [{0}] fully loaded\n", database.Id);
         }
 
         #region LoadDatabaseV3-Containers
@@ -635,21 +627,24 @@ namespace CosmosDbAdventureWorks.data_loader
 
                              async () =>
                              {
-                                 await LoadDatabaseV4Product(database);
+                                 await LoadDatabaseV4SalesOrder(database);
                              }, //close 2nd Action
+                             
+                             async () =>
+                             {
+                                 await LoadDatabaseV4Product(database);
+                             }, //close 3rd Action
 
                              async () =>
                              {
                                  await LoadDatabaseV4ProductMeta(database);
-                             }, //close 3rd Action
+                             }, //close 4th Action
                              async () =>
                              {
                                  await LoadDatabaseV4SalesByCategory(database);
-                             } //close 4th Action
+                             } //close 5th Action
                          ); //close parallel.invoke
             #endregion
-
-            Console.WriteLine("Database [{0}] fully loaded\n", database.Id);
         }
 
         #region LoadDatabaseV4-Containers
@@ -660,19 +655,40 @@ namespace CosmosDbAdventureWorks.data_loader
             Container containerCustomer = await database.CreateContainerIfNotExistsAsync("customer", "/id");
             Console.WriteLine("Created Container: {0}\n", containerCustomer.Id);
             // Deserialized customer data file
-            string jsonStringCustomer = File.ReadAllText(filePath + "cosmic-works-v4/customer.json");
+            string jsonStringCustomer = File.ReadAllText(filePath + "cosmic-works-v3/customer.json"); //loading v3 data into v4 container
             List<CustomerV4> customers = JsonSerializer.Deserialize<List<CustomerV4>>(jsonStringCustomer);
             Console.WriteLine("Deserialized customer data: {0}\n", customers.Count);
             // Insert customers into the container
             int count = 0;
             foreach (CustomerV4 item in customers)
             {
+                item.type = "customer"; // manually setting the type
                 ItemResponse<CustomerV4> customerResponse = await containerCustomer.CreateItemAsync<CustomerV4>(item);
                 count++;
             }
             Console.WriteLine("{0} customers added to [{1}] container\n", count, containerCustomer.Id);
         }
 
+        public static async Task LoadDatabaseV4SalesOrder(Database database)
+        {
+            // *** salesOrder ***
+            // Create a new salesOrder container
+            Container containerSalesOrder = await database.CreateContainerIfNotExistsAsync("customer", "/Id");
+            Console.WriteLine("Created Container: {0}\n", containerSalesOrder.Id);
+            // Deserialized salesOrder data file
+            string jsonStringSalesOrder = File.ReadAllText(filePath + "cosmic-works-v3/salesOrder.json"); //loading v3 data into v4 container
+            List<SalesOrder> salesOrders = JsonSerializer.Deserialize<List<SalesOrder>>(jsonStringSalesOrder);
+            Console.WriteLine("Deserialized salesOrder data: {0}\n", salesOrders.Count);
+            // Insert salesOrder into the container
+            int count = 0;
+            foreach (SalesOrder item in salesOrders)
+            {
+                item.type = "salesOrder"; // manually setting the type
+                ItemResponse<SalesOrder> salesOrdersResponse = await containerSalesOrder.CreateItemAsync<SalesOrder>(item);
+                count++;
+            }
+            Console.WriteLine("{0} salesOrders added to [{1}] container\n", count, containerSalesOrder.Id);
+        }
         public static async Task LoadDatabaseV4Product(Database database)
         {
             // *** product ***
@@ -723,6 +739,7 @@ namespace CosmosDbAdventureWorks.data_loader
             // Data gets loaded into salesByCategory container by a change feed process
 
         }
+
         #endregion
     }
 }
