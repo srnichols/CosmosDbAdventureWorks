@@ -1,12 +1,13 @@
-# CosmosDb-AdventureWorks data
+# CosmosDb-AdventureWorks MicroHack
+[Detailed Instructions](https://github.com/srnichols/CosmosDbAdventureWorks/blob/master/MICROHACKGUIDE.md)
 
-How to migrate a relational data model to Azure Cosmos DB, a distributed, horizontally scalable, NoSQL database.
+In this sample we will migrate a relational data model (SQL AdventureWorks 2017) to Azure CosmosDb, a distributed, horizontally scalable, NoSQL database.  
 
 This repo contains a Visual Studio solution with four projects in it:
 
-* **data-loader**: This contains an app that allows you to populate all sample data models from v1 to v4
+* **data-loader**: This project allows you to populate with AdventureWorks data into CosmosDB databases from v1 to v4 
 
-* **modeling-demos**: This contains the main app that shows the evolution of the data models from v1 to v4
+* **modeling-demos**: This contains the app that shows the evolution of the data models from v1 to v4 i.e. reshaping the relational data in stages into CosmosDb. 
 
 * **change-feed-categories**: This project uses change feed processor to monitor the product categories container for changes and then propagates those to the products container.
 
