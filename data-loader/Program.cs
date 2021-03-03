@@ -59,18 +59,27 @@ namespace CosmosDbAdventureWorks.data_loader
                     //Console.Clear();
                     Console.WriteLine($"[b]   Load database-v2");
                     await LoadDatabaseV2Async();
+                    Console.WriteLine("Database [{0}] fully loaded\n", "database-v2");
+                    Console.WriteLine("Press any key to exit...");
+                    Console.ReadKey();
                 }
                 else if (result.KeyChar == 'c')
                 {
                     //Console.Clear();
                     Console.WriteLine($"[c]   Load database-v3");
                     await LoadDatabaseV3Async();
+                    Console.WriteLine("Database [{0}] fully loaded\n", "database-v3");
+                    Console.WriteLine("Press any key to exit...");
+                    Console.ReadKey();
                 }
                 else if (result.KeyChar == 'd')
                 {
                     //Console.Clear();
                     Console.WriteLine($"[d]   Load database-v4");
                     await LoadDatabaseV4Async();
+                    Console.WriteLine("Database [{0}] fully loaded\n", "database-v4");
+                    Console.WriteLine("Press any key to exit...");
+                    Console.ReadKey();
                 }
                 else if (result.KeyChar == 'x')
                 {
