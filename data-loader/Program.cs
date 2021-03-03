@@ -50,6 +50,9 @@ namespace CosmosDbAdventureWorks.data_loader
                     //Console.Clear();
                     Console.WriteLine($"[a]   Load database-v1");
                     await LoadDatabaseV1Async();
+                    Console.WriteLine("Database [{0}] fully loaded\n", "database-v1");
+                    Console.WriteLine("Press any key to exit...");
+                    Console.ReadKey();
                 }
                 else if (result.KeyChar == 'b')
                 {
@@ -63,7 +66,7 @@ namespace CosmosDbAdventureWorks.data_loader
                     Console.WriteLine($"[c]   Load database-v3");
                     await LoadDatabaseV3Async();
                 }
-                else if (result.KeyChar == 'e')
+                else if (result.KeyChar == 'd')
                 {
                     //Console.Clear();
                     Console.WriteLine($"[d]   Load database-v4");
@@ -78,8 +81,11 @@ namespace CosmosDbAdventureWorks.data_loader
         }
         public static async Task LoadDatabaseV1Async()
         {
-            // Create a new database
-            Database database = await client.CreateDatabaseIfNotExistsAsync("database-v1", throughPut);
+            // Autoscale throughput settings
+            ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+            //Create a new database with autoscale enabled
+            Database database = await client.CreateDatabaseIfNotExistsAsync("database-v1", throughputProperties: autoscaleThroughputProperties);
             Console.WriteLine("Created Database: {0}\n", database.Id);
 
             #region ParallelTasks-LoadDatabaseV1
@@ -132,7 +138,6 @@ namespace CosmosDbAdventureWorks.data_loader
            ); //close parallel.invoke
             #endregion
 
-            Console.WriteLine("Database [{0}] fully loaded\n", database.Id);
         }
 
         #region LoadDatabaseV1-Containers
@@ -319,8 +324,11 @@ namespace CosmosDbAdventureWorks.data_loader
         #endregion
         public static async Task LoadDatabaseV2Async()
         {
-            // Create a new database
-            Database database = await client.CreateDatabaseIfNotExistsAsync("database-v2", throughPut);
+            // Autoscale throughput settings
+            ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+            //Create a new database with autoscale enabled
+            Database database = await client.CreateDatabaseIfNotExistsAsync("database-v2", throughputProperties: autoscaleThroughputProperties);
             Console.WriteLine("Created Database: {0}\n", database.Id);
 
             #region ParallelTasks-LoadDatabaseV2
@@ -458,8 +466,11 @@ namespace CosmosDbAdventureWorks.data_loader
 
         public static async Task LoadDatabaseV3Async()
         {
-            // Create a new database
-            Database database = await client.CreateDatabaseIfNotExistsAsync("database-v3", throughPut);
+            // Autoscale throughput settings
+            ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+            //Create a new database with autoscale enabled
+            Database database = await client.CreateDatabaseIfNotExistsAsync("database-v3", throughputProperties: autoscaleThroughputProperties);
             Console.WriteLine("Created Database: {0}\n", database.Id);
 
             #region ParallelTasks-LoadDatabaseV3
@@ -597,11 +608,14 @@ namespace CosmosDbAdventureWorks.data_loader
 
         public static async Task LoadDatabaseV4Async()
         {
-            // Create a new database
-            Database database = await client.CreateDatabaseIfNotExistsAsync("database-v4", throughPut);
+            // Autoscale throughput settings
+            ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+            //Create a new database with autoscale enabled
+            Database database = await client.CreateDatabaseIfNotExistsAsync("database-v4", throughputProperties: autoscaleThroughputProperties);
             Console.WriteLine("Created Database: {0}\n", database.Id);
 
-            #region ParallelTasks-LoadDatabaseV3
+            #region ParallelTasks-LoadDatabaseV4
 
             // Perform five tasks in parallel
             Parallel.Invoke(async () =>
@@ -693,7 +707,7 @@ namespace CosmosDbAdventureWorks.data_loader
         {
             // *** salesByCategory ***
             // Create a new salesByCategory container
-            Container containerSalesByCategory = await database.CreateContainerIfNotExistsAsync("salesByCategory", "/categoryName");
+            Container containerSalesByCategory = await database.CreateContainerIfNotExistsAsync("salesByCategory", "/categoryId");
             Console.WriteLine("Created Container: {0}\n", containerSalesByCategory.Id);
 
             // Data gets loaded into salesByCategory container by a change feed process
