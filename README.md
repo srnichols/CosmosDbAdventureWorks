@@ -5,9 +5,9 @@ In this sample we will migrate a relational data model (SQL AdventureWorks 2017)
 
 This repo contains a Visual Studio solution with four projects in it:
 
-* **data-loader**: This project allows you to populate with AdventureWorks data into CosmosDB databases from v1 to v4 
+* **data-loader**: This project allows you to populate using the relational SQL Server AdventureWorks-2017 data into CosmosDB NoSQL databases, providing multiple evolutions of the container development from v1 to v4 
 
-* **modeling-demos**: This contains the app that shows the evolution of the data models from v1 to v4 i.e. reshaping the relational data in stages into CosmosDb. 
+* **modeling-demos**: This contains the app that shows the evolution of the data models from database v1 to v4 i.e. reshaping the relational data in stages into CosmosDb. 
 
 * **change-feed-categories**: This project uses change feed processor to monitor the product categories container for changes and then propagates those to the products container.
 
