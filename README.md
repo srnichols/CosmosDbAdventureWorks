@@ -43,5 +43,5 @@ If you want to load the data for each of these database versions into Cosmos you
 
 ## Detaild MicroHack Instructions
 
-If you woudl like detailed instructions on how to setup and utalize this project process to
-[[Detailed Cosmos DB MicroHack Instructions](https://github.com/srnichols/CosmosDbAdventureWorks/blob/master/MICROHACKGUIDE.md)
+If you woudl like detailed instructions on how to setup and utilize this project proceed to
+[Detailed Cosmos DB MicroHack Instructions](https://github.com/srnichols/CosmosDbAdventureWorks/blob/master/MICROHACKGUIDE.md)
