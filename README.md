@@ -20,13 +20,13 @@ This repo contains a Visual Studio solution with four projects in it:
 You can download all of the data for each of the 4 versions of the Cosmos DB databases as it progresses through its evolution from the data folder in this repository.
 You can see the contents of these storage containers below.
 
-* [Cosmic Works version 1](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v1)
+* [CosmosDb database version 1](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v1) SQL tables moved to CosmosDB contaners 1 to 1 
 
-* [Cosmic Works version 2](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v2)
+* [CosmosDb database version 2](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v2)
 
-* [Cosmic Works version 3](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v3)
+* [CosmosDb database version 3](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v3)
 
-* [Cosmic Works version 4](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v4)
+* [CosmosDb database version 4](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v4)
 
 You can also [download a bak file](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/adventure-works-2017) for the original Adventure Works 2017 database this session and app is built upon.
 
