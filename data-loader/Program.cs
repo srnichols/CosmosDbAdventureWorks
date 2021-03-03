@@ -95,6 +95,7 @@ namespace CosmosDbAdventureWorks.data_loader
 
             //Create a new database with autoscale enabled
             Database database = await client.CreateDatabaseIfNotExistsAsync("database-v1", throughputProperties: autoscaleThroughputProperties);
+            //Database database = await client.CreateDatabaseIfNotExistsAsync("database-v1");
             Console.WriteLine("Created Database: {0}\n", database.Id);
 
             #region ParallelTasks-LoadDatabaseV1
