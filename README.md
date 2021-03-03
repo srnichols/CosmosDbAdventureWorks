@@ -41,5 +41,7 @@ To improve the performance of the import process you may want to increase the th
 If you want to load the data for each of these database versions into Cosmos you can use the the Data Loader project or [Data Migration Tool](https://docs.microsoft.com/en-us/azure/cosmos-db/import-data) or 
 [Azure Data Factory](https://docs.microsoft.com/en-us/azure/data-factory/connector-azure-cosmos-db)
 
-[![Detailed MicroHack Instructions]
-https://github.com/srnichols/CosmosDbAdventureWorks/blob/master/MICROHACKGUIDE.md
+## Detaild MicroHack Instructions
+
+If you woudl like detailed instructions on how to setup and utalize this project process to
+[[Detailed Cosmos DB MicroHack Instructions](https://github.com/srnichols/CosmosDbAdventureWorks/blob/master/MICROHACKGUIDE.md)
