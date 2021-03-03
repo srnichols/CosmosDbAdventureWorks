@@ -7,13 +7,13 @@ This repo contains a Visual Studio solution with four projects in it:
 
 * **data-loader**: This project allows you to populate using the relational SQL Server AdventureWorks-2017 data into CosmosDB NoSQL databases, providing multiple evolutions of the container development from v1 to v4 
 
-* **modeling-demos**: This contains the app that shows the evolution of the data models from database v1 to v4 i.e. reshaping the relational data in stages into CosmosDb. 
+* **modeling-demos**: This contains the app that shows the evolution of the data models from database v1 to v4 i.e. reshaping the relational data in stages into CosmosDB. 
 
 * **change-feed-categories**: This project uses change feed processor to monitor the product categories container for changes and then propagates those to the products container. 
 
 * **change-feed-category-sales**: This project uses change feed processor to maintain a materialized view aggregate of total sales for each product category by monitoring the customer container for new orders and then updating the salesByCategory container with the new sales totals.
 
-* **models**: This project contains all of the POCO classes used in the other projects.
+* **models**: This project contains all of the POCO classes used in the other projects. 
 
 ## Source data
 
