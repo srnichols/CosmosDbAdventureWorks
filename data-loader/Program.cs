@@ -28,7 +28,6 @@ namespace CosmosDbAdventureWorks.data_loader
         // The Cosmos client instance
         private static readonly CosmosClient client = new CosmosClient(uri, key);
 
-
         public static async Task Main(string[] args)
         {
             bool exit = false;
