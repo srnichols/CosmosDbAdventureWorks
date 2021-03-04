@@ -34,8 +34,6 @@ You can also [download a bak file](https://github.com/srnichols/CosmosDbAdventur
 To create a new Cosmos DB account with four databases and containers for each from this button below. The four databases are set up with autoscale throughput. 
 To improve the performance of the import process you may want to increase the throughput to approx. 40,000 RU/s, then reduce it back to 4000 RU/s.
 
-[![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazurecosmosdb%2Fcosmicworks%2Fmaster%2Fazuredeploy.json)
-
 ## Loading data
 
 If you want to load the data for each of these database versions into Cosmos you can use the the Data Loader project or [Data Migration Tool](https://docs.microsoft.com/en-us/azure/cosmos-db/import-data) or 
