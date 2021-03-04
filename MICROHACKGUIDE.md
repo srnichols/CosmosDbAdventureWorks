@@ -1,4 +1,4 @@
-# **Cosmos DB MicroHack**
+# **CosmosDB-AdventureWorks MicroHack Instructions**
 
 # Contents
 
