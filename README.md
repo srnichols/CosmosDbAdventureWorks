@@ -1,7 +1,7 @@
-# CosmosDb-AdventureWorks MicroHack
+# CosmosDB-AdventureWorks MicroHack
 [Detailed Instructions](https://github.com/srnichols/CosmosDbAdventureWorks/blob/master/MICROHACKGUIDE.md)
 
-In this sample we will migrate a relational data model (SQL AdventureWorks 2017) to Azure CosmosDb, a distributed, horizontally scalable, NoSQL database.  
+In this sample we will migrate a relational data model (SQL AdventureWorks 2017) to Azure CosmosDB, a distributed, horizontally scalable, NoSQL database.  
 
 This repo contains a Visual Studio solution with four projects in it:
 
@@ -20,15 +20,15 @@ This repo contains a Visual Studio solution with four projects in it:
 You can download all of the data for each of the 4 versions of the Cosmos DB databases as it progresses through its evolution from the data folder in this repository.
 You can see the contents of these storage containers below.
 
-* [CosmosDb database version 1](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v1): SQL tables moved to CosmosDB containers 1 to 1 equivalent, flat structure  
+* [CosmosDb database version 1](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmosdb-adventureworks-v1): SQL tables moved to CosmosDB containers 1 to 1 equivalent, flat structure  
 
-* [CosmosDb database version 2](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v2): Collapsed v1 tables into customer, project, projectCategoty, projectTag, salesOrder containers   
+* [CosmosDb database version 2](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmosdb-adventureworks-v2): Collapsed v1 tables into customer, project, projectCategoty, projectTag, salesOrder containers   
 
-* [CosmosDb database version 3](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v3): Refactored product container to include tag MetaData and category data
+* [CosmosDb database version 3](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmosdb-adventureworks-v3): Refactored product container to include tag MetaData and category data
 
-* [CosmosDb database version 4](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmic-works-v4): Refatered v3 customer & salesOrder container into new v4 customer container, added productMeta container  
+* [CosmosDb database version 4](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/cosmosdb-adventureworks-v4): Refatered v3 customer & salesOrder container into new v4 customer container, added productMeta container  
 
-You can also [download a bak file](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/adventure-works-2017) for the original Adventure Works 2017 database this session and app is built upon.
+You can also [download a bak file](https://github.com/srnichols/CosmosDbAdventureWorks/tree/master/data/sql-adventure-works-2017) for the original Adventure Works 2017 database this session and app is built upon.
 
 ## Provision the four versions of the Cosmos databases
 

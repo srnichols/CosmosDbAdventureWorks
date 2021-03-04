@@ -2,7 +2,7 @@ param accountName string {
   metadata: {
     description: 'Cosmos DB account name, max length 44 characters, lowercase'
   }
-  default: 'cosmicworks-${uniqueString(resourceGroup().id)}'
+  default: 'cosmosadventureworks-${uniqueString(resourceGroup().id)}'
 }
 param location string {
   metadata: {
@@ -119,7 +119,7 @@ resource accountName_database_v1_customerAddress 'Microsoft.DocumentDB/databaseA
     resource: {
       id: 'customerAddress'
       partitionKey: {
-        paths: [
+        paths: [ 
           '/id'
         ]
         kind: 'Hash'
