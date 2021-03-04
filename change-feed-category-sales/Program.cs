@@ -29,7 +29,7 @@ namespace change_feed_category_sales
         {
             
             ContainerProperties leaseContainerProperties = new ContainerProperties("categorySalesLeases", "/id");
-            Container leaseContainer = await database.CreateContainerIfNotExistsAsync(leaseContainerProperties, throughput: throughPut);
+            Container leaseContainer = await database.CreateContainerIfNotExistsAsync(leaseContainerProperties);
 
             var builder = customerContainer.GetChangeFeedProcessorBuilder("SalesByCategoryProcessor",
                 async (IReadOnlyCollection<dynamic> input, CancellationToken cancellationToken) =>

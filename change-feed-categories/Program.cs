@@ -26,7 +26,7 @@ namespace ChangeFeedConsole
         {
             
             ContainerProperties leaseContainerProperties = new ContainerProperties("consoleLeases", "/id");
-            Container leaseContainer = await database.CreateContainerIfNotExistsAsync(leaseContainerProperties, throughput: throughPut);
+            Container leaseContainer = await database.CreateContainerIfNotExistsAsync(leaseContainerProperties);
 
             var builder = productCategoryContainer.GetChangeFeedProcessorBuilder("ProductCategoryProcessor",
                 async (IReadOnlyCollection<ProductCategory> input, CancellationToken cancellationToken) => 

@@ -22,6 +22,8 @@ namespace CosmosDbAdventureWorks.data_loader
         private static readonly string region = config["region"];
         // The CosmosDB database througput limit
         private static readonly int throughPut = int.Parse(config["throughPut"]);
+        // The CosmosDB database througput limit
+        private static readonly bool serverless = bool.Parse(config["serverless"]);
         // The path to your data files.
         private static readonly string filePath = config["filePath"];
 
@@ -85,13 +87,22 @@ namespace CosmosDbAdventureWorks.data_loader
         }
         public static async Task LoadDatabaseV1Async()
         {
-            // Autoscale throughput settings
-            ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+            Database database = null;
 
-            //Create a new database with autoscale enabled
-            Database database = await client.CreateDatabaseIfNotExistsAsync("database-v1", throughputProperties: autoscaleThroughputProperties);
-            //Database database = await client.CreateDatabaseIfNotExistsAsync("database-v1");
-            Console.WriteLine("Created Database: {0}\n", database.Id);
+            if (serverless)
+            {
+                //Create a new database using serverless configuration 
+                database = await client.CreateDatabaseIfNotExistsAsync("database-v1");
+            }
+            else
+            { 
+                // Autoscale throughput settings
+                ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+                //Create a new database with autoscale enabled
+                database = await client.CreateDatabaseIfNotExistsAsync("database-v1", throughputProperties: autoscaleThroughputProperties);
+                Console.WriteLine("Created Database: {0}\n", database.Id);
+            }
 
             #region ParallelTasks-LoadDatabaseV1
 
@@ -329,12 +340,22 @@ namespace CosmosDbAdventureWorks.data_loader
         #endregion
         public static async Task LoadDatabaseV2Async()
         {
-            // Autoscale throughput settings
-            ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+            Database database = null;
 
-            //Create a new database with autoscale enabled
-            Database database = await client.CreateDatabaseIfNotExistsAsync("database-v2", throughputProperties: autoscaleThroughputProperties);
-            Console.WriteLine("Created Database: {0}\n", database.Id);
+            if (serverless)
+            {
+                //Create a new database using serverless configuration 
+                database = await client.CreateDatabaseIfNotExistsAsync("database-v2");
+            }
+            else
+            {
+                // Autoscale throughput settings
+                ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+                //Create a new database with autoscale enabled
+                database = await client.CreateDatabaseIfNotExistsAsync("database-v2", throughputProperties: autoscaleThroughputProperties);
+                Console.WriteLine("Created Database: {0}\n", database.Id);
+            }
 
             #region ParallelTasks-LoadDatabaseV2
 
@@ -469,12 +490,22 @@ namespace CosmosDbAdventureWorks.data_loader
 
         public static async Task LoadDatabaseV3Async()
         {
-            // Autoscale throughput settings
-            ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+            Database database = null;
 
-            //Create a new database with autoscale enabled
-            Database database = await client.CreateDatabaseIfNotExistsAsync("database-v3", throughputProperties: autoscaleThroughputProperties);
-            Console.WriteLine("Created Database: {0}\n", database.Id);
+            if (serverless)
+            {
+                //Create a new database using serverless configuration 
+                database = await client.CreateDatabaseIfNotExistsAsync("database-v3");
+            }
+            else
+            {
+                // Autoscale throughput settings
+                ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+                //Create a new database with autoscale enabled
+                database = await client.CreateDatabaseIfNotExistsAsync("database-v3", throughputProperties: autoscaleThroughputProperties);
+                Console.WriteLine("Created Database: {0}\n", database.Id);
+            }
 
             #region ParallelTasks-LoadDatabaseV3
 
@@ -610,39 +641,45 @@ namespace CosmosDbAdventureWorks.data_loader
 
         public static async Task LoadDatabaseV4Async()
         {
-            // Autoscale throughput settings
-            ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+            Database database = null;
 
-            //Create a new database with autoscale enabled
-            Database database = await client.CreateDatabaseIfNotExistsAsync("database-v4", throughputProperties: autoscaleThroughputProperties);
-            Console.WriteLine("Created Database: {0}\n", database.Id);
+            if (serverless)
+            {
+                //Create a new database using serverless configuration 
+                database = await client.CreateDatabaseIfNotExistsAsync("database-v4");
+            }
+            else
+            {
+                // Autoscale throughput settings
+                ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+                //Create a new database with autoscale enabled
+                database = await client.CreateDatabaseIfNotExistsAsync("database-v4", throughputProperties: autoscaleThroughputProperties);
+                Console.WriteLine("Created Database: {0}\n", database.Id);
+            }
 
             #region ParallelTasks-LoadDatabaseV4
 
+            await LoadDatabaseV4Customer(database);
             // Perform five tasks in parallel
             Parallel.Invoke(async () =>
-                            {
-                                await LoadDatabaseV4Customer(database);
-                            },  // close 1st Action
-
-                             async () =>
                              {
-                                 await LoadDatabaseV4SalesOrder(database);
-                             }, //close 2nd Action
+                                await LoadDatabaseV4Customer(database);
+                             },  // close 1st Action
                              
                              async () =>
                              {
                                  await LoadDatabaseV4Product(database);
-                             }, //close 3rd Action
+                             }, //close 2nd Action
 
                              async () =>
                              {
                                  await LoadDatabaseV4ProductMeta(database);
-                             }, //close 4th Action
+                             }, //close 3rd Action
                              async () =>
                              {
                                  await LoadDatabaseV4SalesByCategory(database);
-                             } //close 5th Action
+                             } //close 4th Action
                          ); //close parallel.invoke
             #endregion
         }
@@ -652,43 +689,32 @@ namespace CosmosDbAdventureWorks.data_loader
         {
             //*** Customers ***
             // Create a new customer container
-            Container containerCustomer = await database.CreateContainerIfNotExistsAsync("customer", "/id");
+            Container containerCustomer = await database.CreateContainerIfNotExistsAsync("customer", "/customerId");
             Console.WriteLine("Created Container: {0}\n", containerCustomer.Id);
             // Deserialized customer data file
-            string jsonStringCustomer = File.ReadAllText(filePath + "cosmosdb-adventureworks-v3/customer.json"); //loading v3 data into v4 container
-            List<CustomerV4> customers = JsonSerializer.Deserialize<List<CustomerV4>>(jsonStringCustomer);
+            string jsonStringCustomer = File.ReadAllText(filePath + "cosmosdb-adventureworks-v4/customer.json");
+            var customers = JsonSerializer.Deserialize<List<dynamic>>(jsonStringCustomer);
             Console.WriteLine("Deserialized customer data: {0}\n", customers.Count);
             // Insert customers into the container
             int count = 0;
-            foreach (CustomerV4 item in customers)
+            foreach (var item in customers)
             {
-                item.type = "customer"; // manually setting the type
-                ItemResponse<CustomerV4> customerResponse = await containerCustomer.CreateItemAsync<CustomerV4>(item);
+                CustomerV4 filterType = JsonSerializer.Deserialize<CustomerV4>(item.ToString());
+                if (filterType.type == "customer")
+                {
+                    ItemResponse<CustomerV4> customerResponse = await containerCustomer.CreateItemAsync<CustomerV4>(filterType);
+
+                }
+                else if (filterType.type == "salesOrder")
+                {
+                    SalesOrder newIem = JsonSerializer.Deserialize<SalesOrder>(item.ToString());
+                    ItemResponse<SalesOrder> salesOrdersResponse = await containerCustomer.CreateItemAsync<SalesOrder>(newIem);
+                }
                 count++;
             }
             Console.WriteLine("{0} customers added to [{1}] container\n", count, containerCustomer.Id);
         }
 
-        public static async Task LoadDatabaseV4SalesOrder(Database database)
-        {
-            // *** salesOrder ***
-            // Create a new salesOrder container
-            Container containerSalesOrder = await database.CreateContainerIfNotExistsAsync("customer", "/Id");
-            Console.WriteLine("Created Container: {0}\n", containerSalesOrder.Id);
-            // Deserialized salesOrder data file
-            string jsonStringSalesOrder = File.ReadAllText(filePath + "cosmosdb-adventureworks-v3/salesOrder.json"); //loading v3 data into v4 container
-            List<SalesOrder> salesOrders = JsonSerializer.Deserialize<List<SalesOrder>>(jsonStringSalesOrder);
-            Console.WriteLine("Deserialized salesOrder data: {0}\n", salesOrders.Count);
-            // Insert salesOrder into the container
-            int count = 0;
-            foreach (SalesOrder item in salesOrders)
-            {
-                item.type = "salesOrder"; // manually setting the type
-                ItemResponse<SalesOrder> salesOrdersResponse = await containerSalesOrder.CreateItemAsync<SalesOrder>(item);
-                count++;
-            }
-            Console.WriteLine("{0} salesOrders added to [{1}] container\n", count, containerSalesOrder.Id);
-        }
         public static async Task LoadDatabaseV4Product(Database database)
         {
             // *** product ***
