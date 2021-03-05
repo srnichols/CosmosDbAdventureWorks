@@ -28,7 +28,7 @@ namespace CosmosDbAdventureWorks.data_loader
         private static readonly string filePath = config["filePath"];
 
         // The Cosmos client instance
-        private static readonly CosmosClient client = new CosmosClient(uri, key);
+        private static readonly CosmosClient client = new CosmosClient(uri, key, new CosmosClientOptions() { AllowBulkExecution = false });
 
         public static async Task Main(string[] args)
         {
@@ -49,34 +49,26 @@ namespace CosmosDbAdventureWorks.data_loader
                 if (result.KeyChar == 'a')
                 {
                     //Console.Clear();
-                    Console.WriteLine($"[a]   Load database-v1");
+                    Console.WriteLine($"[a]   Load database-v1\n");
                     await LoadDatabaseV1Async();
-                    Console.WriteLine("Press any key to exit...");
-                    Console.ReadKey();
                 }
                 else if (result.KeyChar == 'b')
                 {
                     //Console.Clear();
-                    Console.WriteLine($"[b]   Load database-v2");
+                    Console.WriteLine($"[b]   Load database-v2\n");
                     await LoadDatabaseV2Async();
-                    Console.WriteLine("Press any key to exit...");
-                    Console.ReadKey();
                 }
                 else if (result.KeyChar == 'c')
                 {
                     //Console.Clear();
-                    Console.WriteLine($"[c]   Load database-v3");
+                    Console.WriteLine($"[c]   Load database-v3\n");
                     await LoadDatabaseV3Async();
-                    Console.WriteLine("Press any key to exit...");
-                    Console.ReadKey();
                 }
                 else if (result.KeyChar == 'd')
                 {
                     //Console.Clear();
-                    Console.WriteLine($"[d]   Load database-v4");
+                    Console.WriteLine($"[d]   Load database-v4\n");
                     await LoadDatabaseV4Async();
-                    Console.WriteLine("Press any key to exit...");
-                    Console.ReadKey();
                 }
                 else if (result.KeyChar == 'x')
                 {
@@ -87,73 +79,58 @@ namespace CosmosDbAdventureWorks.data_loader
         }
         public static async Task LoadDatabaseV1Async()
         {
-            Database database = null;
-
-            if (serverless)
-            {
-                //Create a new database using serverless configuration 
-                database = await client.CreateDatabaseIfNotExistsAsync("database-v1");
-            }
-            else
+            try
             { 
-                // Autoscale throughput settings
-                ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+                Database database = null;
 
-                //Create a new database with autoscale enabled
-                database = await client.CreateDatabaseIfNotExistsAsync("database-v1", throughputProperties: autoscaleThroughputProperties);
-                Console.WriteLine("Created Database: {0}\n", database.Id);
+                if (serverless)
+                {
+                    //Create a new database using serverless configuration 
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v1");
+                }
+                else
+                { 
+                    // Autoscale throughput settings
+                    ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+                    //Create a new database with autoscale enabled
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v1", throughputProperties: autoscaleThroughputProperties);
+                    Console.WriteLine("Created Database: {0}\n", database.Id);
+                }
+
+                #region ParallelTasks-LoadDatabaseV1
+
+                // Perform nine tasks in parallel
+                Task t1 = LoadDatabaseV1Customer(database);
+                Task t2 = LoadDatabaseV1CustomerAddress(database);
+                Task t3 = LoadDatabaseV1CustomerPassword(database);
+                Task t4 = LoadDatabaseV1Product(database);
+                Task t5 = LoadDatabaseV1ProductCategory(database);
+                Task t6 = LoadDatabaseV1ProductTag(database);
+                Task t7 = LoadDatabaseV1ProductTags(database);
+                Task t8 = LoadDatabaseV1SalesOrder(database);
+                Task t9 = LoadDatabaseV1SalesOrderDetail(database);
+
+                await Task.WhenAll(t1, t2, t3, t4,t5,t6,t7,t8,t9);
+
+                
+                #endregion
+
             }
-
-            #region ParallelTasks-LoadDatabaseV1
-
-            // Perform nine tasks in parallel
-            Parallel.Invoke(async () =>
-                            {
-                                await LoadDatabaseV1Customer(database);
-                            },  // close 1st Action
-
-                            async () =>
-                            {
-                                await LoadDatabaseV1CustomerAddress(database);
-                            }, //close 2nd Action
-
-                            async () =>
-                            {
-                                await LoadDatabaseV1CustomerPassword(database);
-                            }, //close 3rd Action
-
-                            async () =>
-                           {
-                                await LoadDatabaseV1Product(database);
-                           }, //close 4th Action
-
-                           async () =>
-                           {
-                                await LoadDatabaseV1ProductCategory(database);
-                           }, //close 5th Action
-
-                           async () =>
-                           {
-                               await LoadDatabaseV1ProductTag(database);
-                           }, //close 6th Action
-
-                           async () =>
-                           {
-                               await LoadDatabaseV1ProductTags(database);
-                           }, //close 7th Action
-
-                           async () =>
-                           {
-                               await LoadDatabaseV1SalesOrder(database);
-                           }, //close 8th Action
-
-                           async () =>
-                           {
-                               await LoadDatabaseV1SalesOrderDetail(database);
-                           } //close 9th Action
-           ); //close parallel.invoke
-            #endregion
-
+            catch (CosmosException cre)
+            {
+                Console.WriteLine(cre.ToString());
+            }
+            catch (Exception e)
+            {
+                Exception baseException = e.GetBaseException();
+                Console.WriteLine("Error: {0}, Message: {1}", e.Message, baseException.Message);
+            }
+            finally
+            {
+                Console.WriteLine("database-v1 containers loaded, press any key to exit.");
+                Console.ReadKey();
+            }
         }
 
         #region LoadDatabaseV1-Containers
@@ -340,50 +317,52 @@ namespace CosmosDbAdventureWorks.data_loader
         #endregion
         public static async Task LoadDatabaseV2Async()
         {
-            Database database = null;
-
-            if (serverless)
+            try
             {
-                //Create a new database using serverless configuration 
-                database = await client.CreateDatabaseIfNotExistsAsync("database-v2");
+                Database database = null;
+
+                if (serverless)
+                {
+                    //Create a new database using serverless configuration 
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v2");
+                }
+                else
+                {
+                    // Autoscale throughput settings
+                    ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+                    //Create a new database with autoscale enabled
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v2", throughputProperties: autoscaleThroughputProperties);
+                    Console.WriteLine("Created Database: {0}\n", database.Id);
+                }
+
+                #region ParallelTasks-LoadDatabaseV2
+
+                // Perform five tasks in parallel
+                Task t1 = LoadDatabaseV2Customer(database);
+                Task t2 = LoadDatabaseV2Product(database);
+                Task t3 = LoadDatabaseV2ProductCategory(database);
+                Task t4 = LoadDatabaseV2ProductTag(database);
+                Task t5 = LoadDatabaseV2SalesOrder(database);
+
+                await Task.WhenAll(t1, t2, t3, t4, t5);
+
+                #endregion
             }
-            else
+            catch (CosmosException cre)
             {
-                // Autoscale throughput settings
-                ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
-
-                //Create a new database with autoscale enabled
-                database = await client.CreateDatabaseIfNotExistsAsync("database-v2", throughputProperties: autoscaleThroughputProperties);
-                Console.WriteLine("Created Database: {0}\n", database.Id);
+                Console.WriteLine(cre.ToString());
             }
-
-            #region ParallelTasks-LoadDatabaseV2
-
-            // Perform five tasks in parallel
-            Parallel.Invoke(async () =>
-                             {
-                                 await LoadDatabaseV2Customer(database);
-                             },  // close first Action
-
-                             async () =>
-                             {
-                                 await LoadDatabaseV2Product(database);
-                             }, //close second Action
-
-                             async () =>
-                             {
-                                 await LoadDatabaseV2ProductCategory(database);
-                             }, //close third Action
-                             async () =>
-                             {
-                                 await LoadDatabaseV2ProductTag(database);
-                             }, //close forth Action
-                             async () =>
-                             {
-                                 await LoadDatabaseV2SalesOrder(database);
-                             } //close fith Action
-                         ); //close parallel.invoke
-            #endregion
+            catch (Exception e)
+            {
+                Exception baseException = e.GetBaseException();
+                Console.WriteLine("Error: {0}, Message: {1}", e.Message, baseException.Message);
+            }
+                finally
+            {
+                Console.WriteLine("database-v2 containers loaded, press any key to exit.");
+                Console.ReadKey();
+            }
         }
 
         #region LoadDatabaseV2-Containers
@@ -490,51 +469,52 @@ namespace CosmosDbAdventureWorks.data_loader
 
         public static async Task LoadDatabaseV3Async()
         {
-            Database database = null;
-
-            if (serverless)
+            try
             {
-                //Create a new database using serverless configuration 
-                database = await client.CreateDatabaseIfNotExistsAsync("database-v3");
+                Database database = null;
+
+                if (serverless)
+                {
+                    //Create a new database using serverless configuration 
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v3");
+                }
+                else
+                {
+                    // Autoscale throughput settings
+                    ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+                    //Create a new database with autoscale enabled
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v3", throughputProperties: autoscaleThroughputProperties);
+                    Console.WriteLine("Created Database: {0}\n", database.Id);
+                }
+
+                #region ParallelTasks-LoadDatabaseV3
+
+                // Perform five tasks in parallel
+                Task t1 = LoadDatabaseV3Customer(database);
+                Task t2 = LoadDatabaseV3Product(database);
+                Task t3 = LoadDatabaseV3ProductCategory(database);
+                Task t4 = LoadDatabaseV3ProductTag(database);
+                Task t5 = LoadDatabaseV3SalesOrder(database);
+
+                await Task.WhenAll(t1, t2, t3, t4, t5);
+
+                #endregion
             }
-            else
+            catch (CosmosException cre)
             {
-                // Autoscale throughput settings
-                ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
-
-                //Create a new database with autoscale enabled
-                database = await client.CreateDatabaseIfNotExistsAsync("database-v3", throughputProperties: autoscaleThroughputProperties);
-                Console.WriteLine("Created Database: {0}\n", database.Id);
+                Console.WriteLine(cre.ToString());
             }
-
-            #region ParallelTasks-LoadDatabaseV3
-
-            // Perform five tasks in parallel
-            Parallel.Invoke(async () =>
-                            {
-                                await LoadDatabaseV3Customer(database);
-                            },  // close 1st Action
-
-                             async () =>
-                             {
-                                 await LoadDatabaseV3Product(database);
-                             }, //close 2nd Action
-
-                             async () =>
-                             {
-                                 await LoadDatabaseV3ProductCategory(database);
-                             }, //close 3rd Action
-                             async () =>
-                             {
-                                 await LoadDatabaseV3ProductTag(database);
-                             }, //close 4th Action
-                             async () =>
-                             {
-                                 await LoadDatabaseV3SalesOrder(database);
-                             } //close 5th Action
-                         ); //close parallel.invoke
-            #endregion
-
+            catch (Exception e)
+            {
+                Exception baseException = e.GetBaseException();
+                Console.WriteLine("Error: {0}, Message: {1}", e.Message, baseException.Message);
+            }
+            finally
+            {
+                Console.WriteLine("database-v3 containers loaded, press any key to exit.");
+                Console.ReadKey();
+            }
         }
 
         #region LoadDatabaseV3-Containers
@@ -641,47 +621,51 @@ namespace CosmosDbAdventureWorks.data_loader
 
         public static async Task LoadDatabaseV4Async()
         {
-            Database database = null;
-
-            if (serverless)
+            try
             {
-                //Create a new database using serverless configuration 
-                database = await client.CreateDatabaseIfNotExistsAsync("database-v4");
+                Database database = null;
+
+                if (serverless)
+                {
+                    //Create a new database using serverless configuration 
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v4");
+                }
+                else
+                {
+                    // Autoscale throughput settings
+                    ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+                    //Create a new database with autoscale enabled
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v4", throughputProperties: autoscaleThroughputProperties);
+                    Console.WriteLine("Created Database: {0}\n", database.Id);
+                }
+
+                #region ParallelTasks-LoadDatabaseV4
+
+                // Perform four tasks in parallel
+                Task t1 = LoadDatabaseV4Customer(database);
+                Task t2 = LoadDatabaseV4Product(database);
+                Task t3 = LoadDatabaseV4ProductMeta(database);
+                Task t4 = LoadDatabaseV4SalesByCategory(database);
+
+                await Task.WhenAll(t1, t2, t3, t4);
+
+                #endregion
             }
-            else
+            catch (CosmosException cre)
             {
-                // Autoscale throughput settings
-                ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
-
-                //Create a new database with autoscale enabled
-                database = await client.CreateDatabaseIfNotExistsAsync("database-v4", throughputProperties: autoscaleThroughputProperties);
-                Console.WriteLine("Created Database: {0}\n", database.Id);
+                Console.WriteLine(cre.ToString());
             }
-
-            #region ParallelTasks-LoadDatabaseV4
-
-            await LoadDatabaseV4Customer(database);
-            // Perform five tasks in parallel
-            Parallel.Invoke(async () =>
-                             {
-                                await LoadDatabaseV4Customer(database);
-                             },  // close 1st Action
-                             
-                             async () =>
-                             {
-                                 await LoadDatabaseV4Product(database);
-                             }, //close 2nd Action
-
-                             async () =>
-                             {
-                                 await LoadDatabaseV4ProductMeta(database);
-                             }, //close 3rd Action
-                             async () =>
-                             {
-                                 await LoadDatabaseV4SalesByCategory(database);
-                             } //close 4th Action
-                         ); //close parallel.invoke
-            #endregion
+            catch (Exception e)
+            {
+                Exception baseException = e.GetBaseException();
+                Console.WriteLine("Error: {0}, Message: {1}", e.Message, baseException.Message);
+            }
+            finally
+            {
+                Console.WriteLine("database-v4 containers loaded, press any key to exit.");
+                Console.ReadKey();
+            }
         }
 
         #region LoadDatabaseV4-Containers
