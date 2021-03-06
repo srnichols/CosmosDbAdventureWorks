@@ -133,6 +133,11 @@ namespace CosmosDbAdventureWorks.models
         public string name { get; set; }
     }
 
+    public class TagIdV2
+    {
+        public string id { get; set; }
+    }
+
     public class SalesOrderV1
     {
         public string id { get; set; }
