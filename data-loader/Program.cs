@@ -111,6 +111,980 @@ namespace CosmosDbAdventureWorks.data_loader
             }
         }
 
+        public static async Task LoadDatabaseV1Async()
+        {
+            try
+            { 
+                Database database = null;
+
+                if (serverless)
+                {
+                    //Create a new database using serverless configuration 
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v1");
+                }
+                else
+                { 
+                    // Autoscale throughput settings
+                    ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+                    //Create a new database with autoscale enabled
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v1", throughputProperties: autoscaleThroughputProperties);
+                    Console.WriteLine("Created Database: {0}\n", database.Id);
+                }
+
+                #region ParallelTasks-LoadDatabaseV1
+
+                // Perform nine tasks in parallel
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                Task t1 = LoadDatabaseV1Customer(database);
+                Task t2 = LoadDatabaseV1CustomerAddress(database);
+                Task t3 = LoadDatabaseV1CustomerPassword(database);
+                Task t4 = LoadDatabaseV1Product(database);
+                Task t5 = LoadDatabaseV1ProductCategory(database);
+                Task t6 = LoadDatabaseV1ProductTag(database);
+                Task t7 = LoadDatabaseV1ProductTags(database);
+                Task t8 = LoadDatabaseV1SalesOrder(database);
+                Task t9 = LoadDatabaseV1SalesOrderDetail(database);
+                
+                await Task.WhenAll(t1, t2, t3, t4,t5,t6,t7,t8,t9);
+                stopwatch.Stop();
+                Console.WriteLine("All database-v1 containers loaded in {0}\npress any key to exit.\n",stopwatch.Elapsed);
+
+                #endregion
+
+            }
+            catch (CosmosException cre)
+            {
+                Console.WriteLine(cre.ToString());
+            }
+            catch (Exception e)
+            {
+                Exception baseException = e.GetBaseException();
+                Console.WriteLine("Error: {0}, Message: {1}", e.Message, baseException.Message);
+            }
+            finally
+            {
+                Console.ReadKey();
+            }
+        }
+
+        #region LoadDatabaseV1-Containers
+        public static async Task LoadDatabaseV1Customer(Database database)
+        {
+            //*** Customers ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customer", "/id");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/customer.json");
+            List<CustomerV1> sourceItemList = JsonSerializer.Deserialize<List<CustomerV1>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+                // Lets multi-thread all the inserts 
+                var tasks = new Task[sourceItemList.Count];
+                var taskCount = 0;
+                foreach (CustomerV1 item in sourceItemList)
+                {
+                    tasks[taskCount] = containerDestination
+                        .CreateItemAsync(item, new PartitionKey(item.id));
+                    taskCount++;
+                }
+                await Task.WhenAll(tasks);
+            
+            /*
+            // Lets insert one record at a time
+            int count = 0;
+            foreach (CustomerV1 item in sourceItemList)
+            {
+                ItemResponse<CustomerV1> customerResponse = await containerDestination.CreateItemAsync<CustomerV1>(item);
+                count++;
+            }
+            */
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV1CustomerAddress(Database database)
+        {
+            // *** customerAddress ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customerAddress", "/id");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/customerAddress.json");
+            List<CustomerAddress> sourceItemList = JsonSerializer.Deserialize<List<CustomerAddress>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            // Lets multi-thread all the inserts 
+            var tasks = new Task[sourceItemList.Count];
+            var taskCount = 0;
+            foreach (CustomerAddress item in sourceItemList)
+            {
+                tasks[taskCount] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.id));
+                taskCount++;
+            }
+            await Task.WhenAll(tasks);
+
+            /*
+            // Lets insert one record at a time
+            int count = 0;
+            foreach (CustomerAddress item in sourceItemList)
+            {
+               ItemResponse<CustomerAddress> customerResponse = await containerDestination.CreateItemAsync<CustomerAddress>(item);
+               count++;
+            }
+            */
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV1CustomerPassword(Database database)
+        {
+            // *** customerPassword ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customerPassword", "/hash");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/customerPassword.json");
+            List<PasswordV1> sourceItemList = JsonSerializer.Deserialize<List<PasswordV1>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            // Lets multi-thread all the inserts 
+            var tasks = new Task[sourceItemList.Count];
+            var taskCount = 0;
+            foreach (PasswordV1 item in sourceItemList)
+            {
+                tasks[taskCount] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.hash));
+                taskCount++;
+            }
+            await Task.WhenAll(tasks);
+
+            /*
+            // Lets insert one record at a time            
+            int count = 0;
+            foreach (PasswordV1 item in sourceItemList)
+            {
+                ItemResponse<PasswordV1> customerResponse = await containerDestination.CreateItemAsync<PasswordV1>(item);
+                count++;
+            }
+            */
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV1Product(Database database)
+        {
+            // *** product ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("product", "/id");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/product.json");
+            List<ProductV1> sourceItemList = JsonSerializer.Deserialize<List<ProductV1>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            /*
+            // Lets multi-thread all the inserts 
+            var tasks = new Task[sourceItemList.Count];
+            var taskCount = 0;
+            foreach (ProductV1 item in sourceItemList)
+            {
+                tasks[taskCount] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.id));
+                taskCount++;
+            }
+            await Task.WhenAll(tasks);
+            */
+            
+            // Lets insert one record at a time  
+            int count = 0;
+            foreach (ProductV1 item in sourceItemList)
+            {
+                ItemResponse<ProductV1> customerResponse = await containerDestination.CreateItemAsync<ProductV1>(item);
+                count++;
+            }
+            
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV1ProductCategory(Database database)
+        {
+            // *** productCategory ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productCategory", "/id");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/productCategory.json");
+            List<ProductCategoryV1> sourceItemList = JsonSerializer.Deserialize<List<ProductCategoryV1>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            /*
+            // Lets multi-thread all the inserts 
+            var tasks = new Task[sourceItemList.Count];
+            var taskCount = 0;
+            foreach (ProductCategoryV1 item in sourceItemList)
+            {
+                tasks[taskCount] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.id));
+                taskCount++;
+            }
+            await Task.WhenAll(tasks);
+            */
+            
+            // Lets insert one record at a time 
+            int count = 0;
+            foreach (ProductCategoryV1 item in sourceItemList)
+            {
+                ItemResponse<ProductCategoryV1> customerResponse = await containerDestination.CreateItemAsync<ProductCategoryV1>(item);
+                count++;
+            }
+            
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV1ProductTag(Database database)
+        {
+            // *** producTag ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productTag", "/id");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/productTag.json");
+            List<Tag> sourceItemList = JsonSerializer.Deserialize<List<Tag>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            /*
+            // Lets multi-thread all the inserts 
+            var tasks = new Task[sourceItemList.Count];
+            var taskCount = 0;
+            foreach (Tag item in sourceItemList)
+            {
+                tasks[taskCount] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.id));
+                taskCount++;
+            }
+            await Task.WhenAll(tasks);
+            */
+            
+            // Lets insert one record at a time
+            int count = 0;
+            foreach (Tag item in sourceItemList)
+            {
+                ItemResponse<Tag> customerResponse = await containerDestination.CreateItemAsync<Tag>(item);
+                count++;
+            }
+            
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV1ProductTags(Database database)
+        {
+            // *** producTags ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productTags", "/id");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/productTags.json");
+            List<TagsV1> sourceItemList = JsonSerializer.Deserialize<List<TagsV1>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            /*
+            // Lets multi-thread all the inserts 
+            var tasks = new Task[sourceItemList.Count];
+            var taskCount = 0;
+            foreach (TagsV1 item in sourceItemList)
+            {
+                tasks[taskCount] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.id));
+                taskCount++;
+            }
+            await Task.WhenAll(tasks);
+            */
+            
+            // Lets insert one record at a time
+            int count = 0;
+            foreach (TagsV1 item in sourceItemList)
+            {
+                ItemResponse<TagsV1> customerResponse = await containerDestination.CreateItemAsync<TagsV1>(item);
+                count++;
+            }
+            
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV1SalesOrder(Database database)
+        {
+            // *** salesOrder ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("salesOrder", "/id");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/salesOrder.json");
+            List<SalesOrderV1> sourceItemList = JsonSerializer.Deserialize<List<SalesOrderV1>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            // Lets multi-thread all the inserts 
+            var tasks = new Task[sourceItemList.Count];
+            var taskCount = 0;
+            foreach (SalesOrderV1 item in sourceItemList)
+            {
+                tasks[taskCount] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.id));
+                taskCount++;
+            }
+            await Task.WhenAll(tasks);
+
+            /*
+            // Lets insert one record at a time
+            int count = 0;
+            foreach (SalesOrderV1 item in sourceItemList)
+            {
+                ItemResponse<SalesOrderV1> customerResponse = await containerDestination.CreateItemAsync<SalesOrderV1>(item);
+                count++;
+            }
+            */
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV1SalesOrderDetail(Database database)
+        {
+            // *** salesOrderDetail ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("salesOrderDetail", "/id");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/salesOrderDetail.json");
+            List<SalesOrderDetailV1> sourceItemList = JsonSerializer.Deserialize<List<SalesOrderDetailV1>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            // Lets multi-thread all the inserts 
+            var tasks = new Task[sourceItemList.Count];
+            var taskCount = 0;
+            foreach (SalesOrderDetailV1 item in sourceItemList)
+            {
+                tasks[taskCount] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.id));
+                taskCount++;
+            }
+            await Task.WhenAll(tasks);
+
+            /*
+            // Lets insert one record at a time
+            int count = 0;
+            foreach (SalesOrderDetailV1 item in sourceItemList)
+            {
+                ItemResponse<SalesOrderDetailV1> customerResponse = await containerDestination.CreateItemAsync<SalesOrderDetailV1>(item);
+                count++;
+            }
+            */
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        #endregion
+
+        public static async Task LoadDatabaseV2Async()
+        {
+            try
+            {
+                Database database = null;
+
+                if (serverless)
+                {
+                    //Create a new database using serverless configuration 
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v2");
+                }
+                else
+                {
+                    // Autoscale throughput settings
+                    ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+                    //Create a new database with autoscale enabled
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v2", throughputProperties: autoscaleThroughputProperties);
+                    Console.WriteLine("Created Database: {0}\n", database.Id);
+                }
+
+                #region ParallelTasks-LoadDatabaseV2
+
+                // Perform five tasks in parallel
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                Task t1 = LoadDatabaseV2Customer(database);
+                Task t2 = LoadDatabaseV2Product(database);
+                Task t3 = LoadDatabaseV2ProductCategory(database);
+                Task t4 = LoadDatabaseV2ProductTag(database);
+                Task t5 = LoadDatabaseV2SalesOrder(database);
+
+                await Task.WhenAll(t1, t2, t3, t4, t5);
+                stopwatch.Stop();
+                Console.WriteLine("All database-v2 containers loaded in {0}\npress any key to exit.\n", stopwatch.Elapsed);
+
+                #endregion
+            }
+            catch (CosmosException cre)
+            {
+                Console.WriteLine(cre.ToString());
+            }
+            catch (Exception e)
+            {
+                Exception baseException = e.GetBaseException();
+                Console.WriteLine("Error: {0}, Message: {1}", e.Message, baseException.Message);
+            }
+                finally
+            {
+                Console.ReadKey();
+            }
+        }
+
+        #region LoadDatabaseV2-Containers
+        public static async Task LoadDatabaseV2Customer(Database database)
+        {
+            //*** Customers ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customer", "/id");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v2/customer.json");
+            List<CustomerV2> sourceItemList = JsonSerializer.Deserialize<List<CustomerV2>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            // Lets multi-thread all the inserts 
+            var tasks = new Task[sourceItemList.Count];
+            var taskCount = 0;
+            foreach (CustomerV2 item in sourceItemList)
+            {
+                tasks[taskCount] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.id));
+                taskCount++;
+            }
+            await Task.WhenAll(tasks);
+
+            /*
+            // Lets insert one record at a time
+            int count = 0;
+            foreach (CustomerV2 item in sourceItemList)
+            {
+                ItemResponse<CustomerV2> customerResponse = await containerDestination.CreateItemAsync<CustomerV2>(item);
+                count++;
+            }
+            */
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV2Product(Database database)
+        {
+            // *** product ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("product", "/categoryId");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v2/product.json");
+            List<Product> sourceItemList = JsonSerializer.Deserialize<List<Product>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            int count = 0;
+            foreach (Product item in sourceItemList)
+            {
+                ItemResponse<Product> productsResponse = await containerDestination.CreateItemAsync<Product>(item);
+                count++;
+            }
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV2ProductCategory(Database database)
+        {
+            // *** productCategory ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productCategory", "/type");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v2/productCategory.json");
+            List<ProductCategory> sourceItemList = JsonSerializer.Deserialize<List<ProductCategory>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            int count = 0;
+            foreach (ProductCategory item in sourceItemList)
+            {
+                ItemResponse<ProductCategory> productCategorysResponse = await containerDestination.CreateItemAsync<ProductCategory>(item);
+                count++;
+            }
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV2ProductTag(Database database)
+        {
+            // *** producTag ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productTag", "/type");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v2/productTag.json");
+            List<TagV2> sourceItemList = JsonSerializer.Deserialize<List<TagV2>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            int count = 0;
+            foreach (TagV2 item in sourceItemList)
+            {
+                ItemResponse<TagV2> productTagResponse = await containerDestination.CreateItemAsync<TagV2>(item);
+                count++;
+            }
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV2SalesOrder(Database database)
+        {
+            // *** salesOrder ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("salesOrder", "/customerId");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v2/salesOrder.json");
+            List<SalesOrder> sourceItemList = JsonSerializer.Deserialize<List<SalesOrder>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            // Lets multi-thread all the inserts 
+            var tasks = new Task[sourceItemList.Count];
+            var taskCount = 0;
+            foreach (SalesOrder item in sourceItemList)
+            {
+                tasks[taskCount] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.customerId));
+                taskCount++;
+            }
+            await Task.WhenAll(tasks);
+
+            /*
+            // Lets insert one record at a time
+            int count = 0;
+            foreach (SalesOrder item in sourceItemList)
+            {
+                ItemResponse<SalesOrder> salesOrdersResponse = await containerDestination.CreateItemAsync<SalesOrder>(item);
+                count++;
+            }
+            */
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+        #endregion
+
+        public static async Task LoadDatabaseV3Async()
+        {
+            try
+            {
+                Database database = null;
+
+                if (serverless)
+                {
+                    //Create a new database using serverless configuration 
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v3");
+                }
+                else
+                {
+                    // Autoscale throughput settings
+                    ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+                    //Create a new database with autoscale enabled
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v3", throughputProperties: autoscaleThroughputProperties);
+                    Console.WriteLine("Created Database: {0}\n", database.Id);
+                }
+
+                #region ParallelTasks-LoadDatabaseV3
+
+                // Perform five tasks in parallel
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                Task t1 = LoadDatabaseV3Customer(database);
+                Task t2 = LoadDatabaseV3Product(database);
+                Task t3 = LoadDatabaseV3ProductCategory(database);
+                Task t4 = LoadDatabaseV3ProductTag(database);
+                Task t5 = LoadDatabaseV3SalesOrder(database);
+
+                await Task.WhenAll(t1, t2, t3, t4, t5);
+                stopwatch.Stop();
+                Console.WriteLine("All database-v3 containers loaded in {0}\npress any key to exit.\n", stopwatch.Elapsed);
+
+                #endregion
+            }
+            catch (CosmosException cre)
+            {
+                Console.WriteLine(cre.ToString());
+            }
+            catch (Exception e)
+            {
+                Exception baseException = e.GetBaseException();
+                Console.WriteLine("Error: {0}, Message: {1}", e.Message, baseException.Message);
+            }
+            finally
+            {
+                Console.ReadKey();
+            }
+        }
+
+        #region LoadDatabaseV3-Containers
+        public static async Task LoadDatabaseV3Customer(Database database)
+        {
+            //*** Customers ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customer", "/id");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v3/customer.json");
+            List<CustomerV2> sourceItemList = JsonSerializer.Deserialize<List<CustomerV2>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            // Lets multi-thread all the inserts 
+            var tasks = new Task[sourceItemList.Count];
+            var taskCount = 0;
+            foreach (CustomerV2 item in sourceItemList)
+            {
+                tasks[taskCount] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.id));
+                taskCount++;
+            }
+            await Task.WhenAll(tasks);
+
+            /*
+            // Lets insert one record at a time
+            int count = 0;
+            foreach (CustomerV2 item in sourceItemList)
+            {
+                ItemResponse<CustomerV2> customerResponse = await containerDestination.CreateItemAsync<CustomerV2>(item);
+                count++;
+            }
+            */
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV3Product(Database database)
+        {
+            // *** product ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("product", "/categoryId");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v3/product.json");
+            List<Product> sourceItemList = JsonSerializer.Deserialize<List<Product>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            int count = 0;
+            foreach (Product item in sourceItemList)
+            {
+                ItemResponse<Product> productsResponse = await containerDestination.CreateItemAsync<Product>(item);
+                count++;
+            }
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+
+        }
+
+        public static async Task LoadDatabaseV3ProductCategory(Database database)
+        {
+            // *** productCategory ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productCategory", "/type");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v3/productCategory.json");
+            List<ProductCategory> sourceItemList = JsonSerializer.Deserialize<List<ProductCategory>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            int count = 0;
+            foreach (ProductCategory item in sourceItemList)
+            {
+                ItemResponse<ProductCategory> productCategorysResponse = await containerDestination.CreateItemAsync<ProductCategory>(item);
+                count++;
+            }
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV3ProductTag(Database database)
+        {
+            // *** producTag ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productTag", "/type");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v3/productTag.json");
+            List<TagV2> sourceItemList = JsonSerializer.Deserialize<List<TagV2>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            int count = 0;
+            foreach (TagV2 item in sourceItemList)
+            {
+                ItemResponse<TagV2> productTagResponse = await containerDestination.CreateItemAsync<TagV2>(item);
+                count++;
+            }
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV3SalesOrder(Database database)
+        {
+            // *** salesOrder ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("salesOrder", "/customerId");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v3/salesOrder.json");
+            List<SalesOrder> sourceItemList = JsonSerializer.Deserialize<List<SalesOrder>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            // Lets multi-thread all the inserts 
+            var tasks = new Task[sourceItemList.Count];
+            var taskCount = 0;
+            foreach (SalesOrder item in sourceItemList)
+            {
+                tasks[taskCount] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.customerId));
+                taskCount++;
+            }
+            await Task.WhenAll(tasks);
+
+            /*
+            // Lets insert one record at a time
+            int count = 0;
+            foreach (SalesOrder item in sourceItemList)
+            {
+                ItemResponse<SalesOrder> salesOrdersResponse = await containerDestination.CreateItemAsync<SalesOrder>(item);
+                count++;
+            }
+            */
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+        #endregion
+
+        public static async Task LoadDatabaseV4Async()
+        {
+            try
+            {
+                Database database = null;
+
+                if (serverless)
+                {
+                    //Create a new database using serverless configuration 
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v4");
+                }
+                else
+                {
+                    // Autoscale throughput settings
+                    ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
+
+                    //Create a new database with autoscale enabled
+                    database = await client.CreateDatabaseIfNotExistsAsync("database-v4", throughputProperties: autoscaleThroughputProperties);
+                    Console.WriteLine("Created Database: {0}\n", database.Id);
+                }
+
+                #region ParallelTasks-LoadDatabaseV4
+
+                // Perform four tasks in parallel
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                Task t1 = LoadDatabaseV4Customer(database);
+                Task t2 = LoadDatabaseV4Product(database);
+                Task t3 = LoadDatabaseV4ProductMeta(database);
+                Task t4 = LoadDatabaseV4SalesByCategory(database);
+
+                await Task.WhenAll(t1,t2,t3,t4);
+                stopwatch.Stop();
+                Console.WriteLine("All database-v4 containers loaded in {0}\npress any key to exit.\n", stopwatch.Elapsed);
+
+                #endregion
+            }
+            catch (CosmosException cre)
+            {
+                Console.WriteLine(cre.ToString());
+            }
+            catch (Exception e)
+            {
+                Exception baseException = e.GetBaseException();
+                Console.WriteLine("Error: {0}, Message: {1}", e.Message, baseException.Message);
+            }
+            finally
+            {
+                Console.ReadKey();
+            }
+        }
+
+        #region LoadDatabaseV4-Containers
+        public static async Task LoadDatabaseV4Customer(Database database)
+        {
+            //*** Customers ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customer", "/customerId");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v4/customer.json");
+            var sourceItemList = JsonSerializer.Deserialize<List<dynamic>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            List<CustomerV4> customersList = new List<CustomerV4>();
+            List<SalesOrder> salesOdersList = new List<SalesOrder>();
+
+            int count = 0;
+            foreach (var item in sourceItemList)
+            {
+                CustomerV4 filterType = JsonSerializer.Deserialize<CustomerV4>(item.ToString());
+                if (filterType.type == "customer")
+                {
+                    customersList.Add(filterType);
+                    //ItemResponse<CustomerV4> customerResponse = await containerDestination.CreateItemAsync<CustomerV4>(filterType);
+
+                }
+                else if (filterType.type == "salesOrder")
+                {
+                    SalesOrder newIem = JsonSerializer.Deserialize<SalesOrder>(item.ToString());
+                    salesOdersList.Add(newIem);
+                    //ItemResponse<SalesOrder> salesOrdersResponse = await containerDestination.CreateItemAsync<SalesOrder>(newIem);
+                }
+                count++;
+            }
+
+            // Lets multi-thread all the inserts 
+            var tasksCustomer = new Task[customersList.Count];
+            var taskCountCustomer = 0;
+            foreach (CustomerV4 item in customersList)
+            {
+                tasksCustomer[taskCountCustomer] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.customerId));
+                taskCountCustomer++;
+            }
+            await Task.WhenAll(tasksCustomer);
+
+            // Lets multi-thread all the inserts 
+            var tasksSalesOrtder = new Task[salesOdersList.Count];
+            var taskCountSalesOrder = 0;
+            foreach (SalesOrder item in salesOdersList)
+            {
+                tasksSalesOrtder[taskCountSalesOrder] = containerDestination
+                    .CreateItemAsync(item, new PartitionKey(item.customerId));
+                taskCountSalesOrder++;
+            }
+            await Task.WhenAll(tasksSalesOrtder);
+
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV4Product(Database database)
+        {
+            // *** product ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("product", "/categoryId");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v4/product.json");
+            List<Product> sourceItemList = JsonSerializer.Deserialize<List<Product>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            int count = 0;
+            foreach (Product item in sourceItemList)
+            {
+                ItemResponse<Product> productsResponse = await containerDestination.CreateItemAsync<Product>(item);
+                count++;
+            }
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV4ProductMeta(Database database)
+        {
+            // *** productMeta ***
+            // Create a new container
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productMeta", "/type");
+            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
+            // Deserialized data file
+            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v4/productMeta.json");
+            List<ProductMeta> sourceItemList = JsonSerializer.Deserialize<List<ProductMeta>>(jsonString);
+            int ItemsToInsert = sourceItemList.Count;
+            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
+            // Insert into the container
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            int count = 0;
+            foreach (ProductMeta item in sourceItemList)
+            {
+                ItemResponse<ProductMeta> productMetasResponse = await containerDestination.CreateItemAsync<ProductMeta>(item);
+                count++;
+            }
+            stopwatch.Stop();
+            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
+        }
+
+        public static async Task LoadDatabaseV4SalesByCategory(Database database)
+        {
+            // *** salesByCategory ***
+            // Create a new container
+            Container containerSalesByCategory = await database.CreateContainerIfNotExistsAsync("salesByCategory", "/categoryId");
+            Console.WriteLine("Created Container: {0}\n", containerSalesByCategory.Id);
+
+            // Data gets loaded into salesByCategory container by a change feed process
+
+        }
+
+        #endregion
+
         public static async Task BulkLoadDatabaseV1Async()
         {
             try
@@ -145,8 +1119,8 @@ namespace CosmosDbAdventureWorks.data_loader
                 Task t7 = BulkLoadDatabaseV1ProductTags(database);
                 Task t8 = BulkLoadDatabaseV1SalesOrder(database);
                 Task t9 = BulkLoadDatabaseV1SalesOrderDetail(database);
-                
-                await Task.WhenAll(t1,t2,t3,t4,t5,t6,t7,t8,t9);
+
+                await Task.WhenAll(t1, t2, t3, t4, t5, t6, t7, t8, t9);
 
                 #endregion
 
@@ -170,7 +1144,7 @@ namespace CosmosDbAdventureWorks.data_loader
         #region BulkLoadDatabaseV1-Containers
 
         public static async Task BulkLoadDatabaseV1Customer(Database database)
-        {  
+        {
             try
             {
                 if (serverless)
@@ -1001,14 +1975,14 @@ namespace CosmosDbAdventureWorks.data_loader
 
                 #region ParallelTasks-LoadDatabaseBulk
 
-                    // Perform five tasks in parallel
-                    Task t1 = BulkLoadDatabaseV2Customer(database);
-                    Task t2 = BulkLoadDatabaseV2Product(database);
-                    Task t3 = BulkLoadDatabaseV2ProductCategory(database);
-                    Task t4 = BulkLoadDatabaseV2ProductTag(database);
-                    Task t5 = BulkLoadDatabaseV2SalesOrder(database);
+                // Perform five tasks in parallel
+                Task t1 = BulkLoadDatabaseV2Customer(database);
+                Task t2 = BulkLoadDatabaseV2Product(database);
+                Task t3 = BulkLoadDatabaseV2ProductCategory(database);
+                Task t4 = BulkLoadDatabaseV2ProductTag(database);
+                Task t5 = BulkLoadDatabaseV2SalesOrder(database);
 
-                    await Task.WhenAll(t1, t2, t3, t4, t5);
+                await Task.WhenAll(t1, t2, t3, t4, t5);
 
                 #endregion
 
@@ -1032,7 +2006,7 @@ namespace CosmosDbAdventureWorks.data_loader
         #region BulkLoadDatabaseV2-Containers
 
         public static async Task BulkLoadDatabaseV2Customer(Database database)
-        {  
+        {
             try
             {
                 if (serverless)
@@ -1061,7 +2035,7 @@ namespace CosmosDbAdventureWorks.data_loader
                                 .Attach()
                             .CreateAsync(throughPut);
                 }
-         
+
                 //*** Customers ***
                 // Create a new container
                 Container containerDestination = await database.CreateContainerIfNotExistsAsync("customer", "/id");
@@ -2019,7 +2993,7 @@ namespace CosmosDbAdventureWorks.data_loader
                 Task t4 = BulkLoadDatabaseV4SalesOrder(database);
                 Task t5 = LoadDatabaseV4SalesByCategory(database);
 
-                await Task.WhenAll(t1,t2,t3,t4,t5);
+                await Task.WhenAll(t1, t2, t3, t4, t5);
 
                 #endregion
 
@@ -2096,7 +3070,7 @@ namespace CosmosDbAdventureWorks.data_loader
                     if (filterType.type == "customer")
                     {
                         sourceItemListCustomer.Add(filterType);
-                        ItemsToInsertCustomerCount++ ;
+                        ItemsToInsertCustomerCount++;
                     }
                     else if (filterType.type == "salesOrder")
                     {
@@ -2418,754 +3392,28 @@ namespace CosmosDbAdventureWorks.data_loader
 
         #endregion
 
-        public static async Task LoadDatabaseV1Async()
+        #region Helper functions
+
+        protected async Task<int> WriteItems(Container container, List<CustomerV1> docs)
         {
-            try
-            { 
-                Database database = null;
-
-                if (serverless)
-                {
-                    //Create a new database using serverless configuration 
-                    database = await client.CreateDatabaseIfNotExistsAsync("database-v1");
-                }
-                else
-                { 
-                    // Autoscale throughput settings
-                    ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
-
-                    //Create a new database with autoscale enabled
-                    database = await client.CreateDatabaseIfNotExistsAsync("database-v1", throughputProperties: autoscaleThroughputProperties);
-                    Console.WriteLine("Created Database: {0}\n", database.Id);
-                }
-
-                #region ParallelTasks-LoadDatabaseV1
-
-                // Perform nine tasks in parallel
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                Task t1 = LoadDatabaseV1Customer(database);
-                Task t2 = LoadDatabaseV1CustomerAddress(database);
-                Task t3 = LoadDatabaseV1CustomerPassword(database);
-                Task t4 = LoadDatabaseV1Product(database);
-                Task t5 = LoadDatabaseV1ProductCategory(database);
-                Task t6 = LoadDatabaseV1ProductTag(database);
-                Task t7 = LoadDatabaseV1ProductTags(database);
-                Task t8 = LoadDatabaseV1SalesOrder(database);
-                Task t9 = LoadDatabaseV1SalesOrderDetail(database);
-
-                await Task.WhenAll(t1, t2, t3, t4,t5,t6,t7,t8,t9);
-                stopwatch.Stop();
-                Console.WriteLine("All database-v1 containers loaded in {0}\npress any key to exit.\n",stopwatch.Elapsed);
-
-                #endregion
-
-            }
-            catch (CosmosException cre)
+            var tasks = new Task[docs.Count];
+            var taskCtr = 0;
+            var errorCtr = 0;
+            foreach (var item in docs)
             {
-                Console.WriteLine(cre.ToString());
+                tasks[taskCtr] = container
+                    .CreateItemAsync(item, new PartitionKey(item.id));
+                    //.ContinueWith(task => errorCtr = this.CatchInsertDocumentError(task, errorCtr));
+
+                taskCtr++;
             }
-            catch (Exception e)
-            {
-                Exception baseException = e.GetBaseException();
-                Console.WriteLine("Error: {0}, Message: {1}", e.Message, baseException.Message);
-            }
-            finally
-            {
-                Console.ReadKey();
-            }
+
+            await Task.WhenAll(tasks);
+            return errorCtr;
         }
 
-        #region LoadDatabaseV1-Containers
-        public static async Task LoadDatabaseV1Customer(Database database)
-        {
-            //*** Customers ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customer", "/id");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/customer.json");
-            List<CustomerV1> sourceItemList = JsonSerializer.Deserialize<List<CustomerV1>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (CustomerV1 item in sourceItemList)
-            {
-                ItemResponse<CustomerV1> customerResponse = await containerDestination.CreateItemAsync<CustomerV1>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV1CustomerAddress(Database database)
-        {
-            // *** customerAddress ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customerAddress", "/id");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/customerAddress.json");
-            List<CustomerAddress> sourceItemList = JsonSerializer.Deserialize<List<CustomerAddress>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (CustomerAddress item in sourceItemList)
-            {
-                ItemResponse<CustomerAddress> customerResponse = await containerDestination.CreateItemAsync<CustomerAddress>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV1CustomerPassword(Database database)
-        {
-            // *** customerPassword ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customerPassword", "/hash");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/customerPassword.json");
-            List<PasswordV1> sourceItemList = JsonSerializer.Deserialize<List<PasswordV1>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (PasswordV1 item in sourceItemList)
-            {
-                ItemResponse<PasswordV1> customerResponse = await containerDestination.CreateItemAsync<PasswordV1>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV1Product(Database database)
-        {
-            // *** product ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("product", "/id");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/product.json");
-            List<ProductV1> sourceItemList = JsonSerializer.Deserialize<List<ProductV1>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (ProductV1 item in sourceItemList)
-            {
-                ItemResponse<ProductV1> customerResponse = await containerDestination.CreateItemAsync<ProductV1>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV1ProductCategory(Database database)
-        {
-            // *** productCategory ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productCategory", "/id");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/productCategory.json");
-            List<ProductCategoryV1> sourceItemList = JsonSerializer.Deserialize<List<ProductCategoryV1>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (ProductCategoryV1 item in sourceItemList)
-            {
-                ItemResponse<ProductCategoryV1> customerResponse = await containerDestination.CreateItemAsync<ProductCategoryV1>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV1ProductTag(Database database)
-        {
-            // *** producTag ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productTag", "/id");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/productTag.json");
-            List<Tag> sourceItemList = JsonSerializer.Deserialize<List<Tag>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (Tag item in sourceItemList)
-            {
-                ItemResponse<Tag> customerResponse = await containerDestination.CreateItemAsync<Tag>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV1ProductTags(Database database)
-        {
-            // *** producTags ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productTags", "/id");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/productTags.json");
-            List<TagsV1> sourceItemList = JsonSerializer.Deserialize<List<TagsV1>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (TagsV1 item in sourceItemList)
-            {
-                ItemResponse<TagsV1> customerResponse = await containerDestination.CreateItemAsync<TagsV1>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV1SalesOrder(Database database)
-        {
-            // *** salesOrder ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("salesOrder", "/id");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/salesOrder.json");
-            List<SalesOrderV1> sourceItemList = JsonSerializer.Deserialize<List<SalesOrderV1>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (SalesOrderV1 item in sourceItemList)
-            {
-                ItemResponse<SalesOrderV1> customerResponse = await containerDestination.CreateItemAsync<SalesOrderV1>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV1SalesOrderDetail(Database database)
-        {
-            // *** salesOrderDetail ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("salesOrderDetail", "/id");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/salesOrderDetail.json");
-            List<SalesOrderDetailV1> sourceItemList = JsonSerializer.Deserialize<List<SalesOrderDetailV1>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (SalesOrderDetailV1 item in sourceItemList)
-            {
-                ItemResponse<SalesOrderDetailV1> customerResponse = await containerDestination.CreateItemAsync<SalesOrderDetailV1>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
 
         #endregion
 
-        public static async Task LoadDatabaseV2Async()
-        {
-            try
-            {
-                Database database = null;
-
-                if (serverless)
-                {
-                    //Create a new database using serverless configuration 
-                    database = await client.CreateDatabaseIfNotExistsAsync("database-v2");
-                }
-                else
-                {
-                    // Autoscale throughput settings
-                    ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
-
-                    //Create a new database with autoscale enabled
-                    database = await client.CreateDatabaseIfNotExistsAsync("database-v2", throughputProperties: autoscaleThroughputProperties);
-                    Console.WriteLine("Created Database: {0}\n", database.Id);
-                }
-
-                #region ParallelTasks-LoadDatabaseV2
-
-                // Perform five tasks in parallel
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                Task t1 = LoadDatabaseV2Customer(database);
-                Task t2 = LoadDatabaseV2Product(database);
-                Task t3 = LoadDatabaseV2ProductCategory(database);
-                Task t4 = LoadDatabaseV2ProductTag(database);
-                Task t5 = LoadDatabaseV2SalesOrder(database);
-
-                await Task.WhenAll(t1, t2, t3, t4, t5);
-                stopwatch.Stop();
-                Console.WriteLine("All database-v2 containers loaded in {0}\npress any key to exit.\n", stopwatch.Elapsed);
-
-                #endregion
-            }
-            catch (CosmosException cre)
-            {
-                Console.WriteLine(cre.ToString());
-            }
-            catch (Exception e)
-            {
-                Exception baseException = e.GetBaseException();
-                Console.WriteLine("Error: {0}, Message: {1}", e.Message, baseException.Message);
-            }
-                finally
-            {
-                Console.ReadKey();
-            }
-        }
-
-        #region LoadDatabaseV2-Containers
-        public static async Task LoadDatabaseV2Customer(Database database)
-        {
-            //*** Customers ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customer", "/id");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v2/customer.json");
-            List<CustomerV2> sourceItemList = JsonSerializer.Deserialize<List<CustomerV2>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (CustomerV2 item in sourceItemList)
-            {
-                ItemResponse<CustomerV2> customerResponse = await containerDestination.CreateItemAsync<CustomerV2>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV2Product(Database database)
-        {
-            // *** product ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("product", "/categoryId");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v2/product.json");
-            List<Product> sourceItemList = JsonSerializer.Deserialize<List<Product>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (Product item in sourceItemList)
-            {
-                ItemResponse<Product> productsResponse = await containerDestination.CreateItemAsync<Product>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV2ProductCategory(Database database)
-        {
-            // *** productCategory ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productCategory", "/type");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v2/productCategory.json");
-            List<ProductCategory> sourceItemList = JsonSerializer.Deserialize<List<ProductCategory>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (ProductCategory item in sourceItemList)
-            {
-                ItemResponse<ProductCategory> productCategorysResponse = await containerDestination.CreateItemAsync<ProductCategory>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV2ProductTag(Database database)
-        {
-            // *** producTag ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productTag", "/type");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v2/productTag.json");
-            List<TagV2> sourceItemList = JsonSerializer.Deserialize<List<TagV2>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (TagV2 item in sourceItemList)
-            {
-                ItemResponse<TagV2> productTagResponse = await containerDestination.CreateItemAsync<TagV2>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV2SalesOrder(Database database)
-        {
-            // *** salesOrder ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("salesOrder", "/customerId");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v2/salesOrder.json");
-            List<SalesOrder> sourceItemList = JsonSerializer.Deserialize<List<SalesOrder>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (SalesOrder item in sourceItemList)
-            {
-                ItemResponse<SalesOrder> salesOrdersResponse = await containerDestination.CreateItemAsync<SalesOrder>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-        #endregion
-
-        public static async Task LoadDatabaseV3Async()
-        {
-            try
-            {
-                Database database = null;
-
-                if (serverless)
-                {
-                    //Create a new database using serverless configuration 
-                    database = await client.CreateDatabaseIfNotExistsAsync("database-v3");
-                }
-                else
-                {
-                    // Autoscale throughput settings
-                    ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
-
-                    //Create a new database with autoscale enabled
-                    database = await client.CreateDatabaseIfNotExistsAsync("database-v3", throughputProperties: autoscaleThroughputProperties);
-                    Console.WriteLine("Created Database: {0}\n", database.Id);
-                }
-
-                #region ParallelTasks-LoadDatabaseV3
-
-                // Perform five tasks in parallel
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                Task t1 = LoadDatabaseV3Customer(database);
-                Task t2 = LoadDatabaseV3Product(database);
-                Task t3 = LoadDatabaseV3ProductCategory(database);
-                Task t4 = LoadDatabaseV3ProductTag(database);
-                Task t5 = LoadDatabaseV3SalesOrder(database);
-
-                await Task.WhenAll(t1, t2, t3, t4, t5);
-                stopwatch.Stop();
-                Console.WriteLine("All database-v3 containers loaded in {0}\npress any key to exit.\n", stopwatch.Elapsed);
-
-                #endregion
-            }
-            catch (CosmosException cre)
-            {
-                Console.WriteLine(cre.ToString());
-            }
-            catch (Exception e)
-            {
-                Exception baseException = e.GetBaseException();
-                Console.WriteLine("Error: {0}, Message: {1}", e.Message, baseException.Message);
-            }
-            finally
-            {
-                Console.ReadKey();
-            }
-        }
-
-        #region LoadDatabaseV3-Containers
-        public static async Task LoadDatabaseV3Customer(Database database)
-        {
-            //*** Customers ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customer", "/id");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v3/customer.json");
-            List<CustomerV2> sourceItemList = JsonSerializer.Deserialize<List<CustomerV2>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (CustomerV2 item in sourceItemList)
-            {
-                ItemResponse<CustomerV2> customerResponse = await containerDestination.CreateItemAsync<CustomerV2>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV3Product(Database database)
-        {
-            // *** product ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("product", "/categoryId");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v3/customer.json");
-            List<Product> sourceItemList = JsonSerializer.Deserialize<List<Product>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (Product item in sourceItemList)
-            {
-                ItemResponse<Product> productsResponse = await containerDestination.CreateItemAsync<Product>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-
-        }
-
-        public static async Task LoadDatabaseV3ProductCategory(Database database)
-        {
-            // *** productCategory ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productCategory", "/type");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v3/productCategory.json");
-            List<ProductCategory> sourceItemList = JsonSerializer.Deserialize<List<ProductCategory>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (ProductCategory item in sourceItemList)
-            {
-                ItemResponse<ProductCategory> productCategorysResponse = await containerDestination.CreateItemAsync<ProductCategory>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV3ProductTag(Database database)
-        {
-            // *** producTag ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productTag", "/type");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v3/productTag.json");
-            List<TagV2> sourceItemList = JsonSerializer.Deserialize<List<TagV2>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (TagV2 item in sourceItemList)
-            {
-                ItemResponse<TagV2> productTagResponse = await containerDestination.CreateItemAsync<TagV2>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV3SalesOrder(Database database)
-        {
-            // *** salesOrder ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("salesOrder", "/customerId");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v3/salesOrder.json");
-            List<SalesOrder> sourceItemList = JsonSerializer.Deserialize<List<SalesOrder>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (SalesOrder item in sourceItemList)
-            {
-                ItemResponse<SalesOrder> salesOrdersResponse = await containerDestination.CreateItemAsync<SalesOrder>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-        #endregion
-
-        public static async Task LoadDatabaseV4Async()
-        {
-            try
-            {
-                Database database = null;
-
-                if (serverless)
-                {
-                    //Create a new database using serverless configuration 
-                    database = await client.CreateDatabaseIfNotExistsAsync("database-v4");
-                }
-                else
-                {
-                    // Autoscale throughput settings
-                    ThroughputProperties autoscaleThroughputProperties = ThroughputProperties.CreateAutoscaleThroughput(throughPut); //Set autoscale max RU/s
-
-                    //Create a new database with autoscale enabled
-                    database = await client.CreateDatabaseIfNotExistsAsync("database-v4", throughputProperties: autoscaleThroughputProperties);
-                    Console.WriteLine("Created Database: {0}\n", database.Id);
-                }
-
-                #region ParallelTasks-LoadDatabaseV4
-
-                // Perform four tasks in parallel
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                Task t1 = LoadDatabaseV4Customer(database);
-                Task t2 = LoadDatabaseV4Product(database);
-                Task t3 = LoadDatabaseV4ProductMeta(database);
-                Task t4 = LoadDatabaseV4SalesByCategory(database);
-
-                await Task.WhenAll(t1,t2,t3,t4);
-                stopwatch.Stop();
-                Console.WriteLine("All database-v3 containers loaded in {0}\npress any key to exit.\n", stopwatch.Elapsed);
-
-                #endregion
-            }
-            catch (CosmosException cre)
-            {
-                Console.WriteLine(cre.ToString());
-            }
-            catch (Exception e)
-            {
-                Exception baseException = e.GetBaseException();
-                Console.WriteLine("Error: {0}, Message: {1}", e.Message, baseException.Message);
-            }
-            finally
-            {
-                Console.ReadKey();
-            }
-        }
-
-        #region LoadDatabaseV4-Containers
-        public static async Task LoadDatabaseV4Customer(Database database)
-        {
-            //*** Customers ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customer", "/customerId");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v4/customer.json");
-            var sourceItemList = JsonSerializer.Deserialize<List<dynamic>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (var item in sourceItemList)
-            {
-                CustomerV4 filterType = JsonSerializer.Deserialize<CustomerV4>(item.ToString());
-                if (filterType.type == "customer")
-                {
-                    ItemResponse<CustomerV4> customerResponse = await containerDestination.CreateItemAsync<CustomerV4>(filterType);
-
-                }
-                else if (filterType.type == "salesOrder")
-                {
-                    SalesOrder newIem = JsonSerializer.Deserialize<SalesOrder>(item.ToString());
-                    ItemResponse<SalesOrder> salesOrdersResponse = await containerDestination.CreateItemAsync<SalesOrder>(newIem);
-                }
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV4Product(Database database)
-        {
-            // *** product ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("product", "/categoryId");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v4/product.json");
-            List<Product> sourceItemList = JsonSerializer.Deserialize<List<Product>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (Product item in sourceItemList)
-            {
-                ItemResponse<Product> productsResponse = await containerDestination.CreateItemAsync<Product>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV4ProductMeta(Database database)
-        {
-            // *** productMeta ***
-            // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("productMeta", "/type");
-            Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-            // Deserialized data file
-            string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v4/productMeta.json");
-            List<ProductMeta> sourceItemList = JsonSerializer.Deserialize<List<ProductMeta>>(jsonString);
-            int ItemsToInsert = sourceItemList.Count;
-            Console.WriteLine("Deserialized [{0}] data [{1}] items\n", containerDestination.Id, ItemsToInsert);
-            // Insert into the container
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int count = 0;
-            foreach (ProductMeta item in sourceItemList)
-            {
-                ItemResponse<ProductMeta> productMetasResponse = await containerDestination.CreateItemAsync<ProductMeta>(item);
-                count++;
-            }
-            stopwatch.Stop();
-            Console.WriteLine($"Finished writing [{ItemsToInsert}] items into [{containerDestination.Id}] container in {stopwatch.Elapsed}.\n");
-        }
-
-        public static async Task LoadDatabaseV4SalesByCategory(Database database)
-        {
-            // *** salesByCategory ***
-            // Create a new container
-            Container containerSalesByCategory = await database.CreateContainerIfNotExistsAsync("salesByCategory", "/categoryId");
-            Console.WriteLine("Created Container: {0}\n", containerSalesByCategory.Id);
-
-            // Data gets loaded into salesByCategory container by a change feed process
-
-        }
-
-        #endregion
     }
 }
