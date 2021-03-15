@@ -1,7 +1,16 @@
-# cosmosdb-postman-collection
-Postman collection demonstrating REST access for CosmosDB Documents
+# Cosmos DB postman collection
+This is a fork from [this original repo](https://github.com/MicrosoftCSA/documentdb-postman-collection). Main changes include:
+1. Updated to the latest [API version](https://docs.microsoft.com/en-us/rest/api/cosmos-db/#supported-rest-api-versions) of 2018-12-31.
+2. Focused more on document operations than database and collection operations.
 
-Every script in the collection uses a pre-request script to create the AUTH headers and format the request based on simply the URL, the functions in all of the requests are actually identical, so you can copy any request, change the uri and save again and it 
+## To install:
+1. Import ```CosmosDBSQL.postman_collection.json``` to Postman collections.
+2. Import ```CosmosDBSQLEnv.postman_environment.json``` to Postman environment.
 
-## Installation
-From postman simply import the collection and the environment, add your access key and document db host in the collection and you're all set, you can use the scripts to create the initial database, then the collection and documents etc.
+## To Use:
+1. Replace ```DocumentDBHost``` and ```DocumentDBMasterKey``` in the environment with your Cosmos DB settings.
+2. Replace ```mydb```, ```mycol```, ```mydocid```, ```mydocpartitionkey``` in the url or headers of the request with your values. Note that these values in the url must be hardcoded. They can't be environment variables, as they are used in the script to compute the auth key. For example:
+![Alt text](/cosmos.GIF?raw=true "Request")
+
+3. Replace request body with your document or query content.
+4. In the response header, you will see ```x-ms-request-charge```, which is the Cosmos DB RU (Request Unit) incurred by the request.
