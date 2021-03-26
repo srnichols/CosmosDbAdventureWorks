@@ -5,13 +5,13 @@ targetScope = 'subscription'
 @minLength(3)
 @maxLength(64)
 @description('Your ResouceGroup name, max length 64 characters, mixedCase')
-param rgName string = 'myCosmosAdventureWorks-rg2'
+param rgName string = 'myCosmosAdventureWorks-rg'
 
 
 @minLength(6)
 @maxLength(44)
 @description('Cosmos DB account name, max length 44 characters, lowercase')
-param accountName string = 'srn-csa-cosmosadventureworks2'
+param accountName string = '<YourUniqueName>-cosmosadventureworks'
 
 @minValue(4000)
 @maxValue(100000)
