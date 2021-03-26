@@ -1,3 +1,6 @@
+# az deployment sub create -f ./cosmosMain.bicep -l westus2 -c
+
+<#
 New-AzResourceGroup `
  -Name myCosmosAdventureWorks-rg `
  -Location "westus2"
@@ -10,4 +13,4 @@ New-AzResourceGroupDeployment `
  -ResourceGroupName myCosmosAdventureWorks-rg `
  -TemplateFile $templateFile `
  -TemplateParameterFile $parameterFile
-
+#>

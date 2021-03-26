@@ -249,7 +249,7 @@ namespace CosmosDbAdventureWorks.data_loader
         {
             // *** customerPassword ***
             // Create a new container
-            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customerPassword", "/hash");
+            Container containerDestination = await database.CreateContainerIfNotExistsAsync("customerPassword", "/id");
             Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
             // Deserialized data file
             string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/customerPassword.json");
@@ -265,7 +265,7 @@ namespace CosmosDbAdventureWorks.data_loader
             foreach (PasswordV1 item in sourceItemList)
             {
                 tasks[taskCount] = containerDestination
-                    .CreateItemAsync(item, new PartitionKey(item.hash));
+                    .CreateItemAsync(item, new PartitionKey(item.id));
                 taskCount++;
             }
             await Task.WhenAll(tasks);
@@ -1177,7 +1177,6 @@ namespace CosmosDbAdventureWorks.data_loader
                 // Create a new container
                 Container containerDestination = await database.CreateContainerIfNotExistsAsync("customer", "/id");
                 Console.WriteLine("Created Container: {0}\n", containerDestination.Id);
-
 
                 // Deserialized data file
                 string jsonString = File.ReadAllText(filePath + "cosmosdb-adventureworks-v1/customer.json");
