@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "accountName": {
-            "value": "srn-csa-cosmosadventureworks"
+            "value": "srn-csa-cosmosadventureworks2"
         },
         "location": {
             "value": "westus2"
