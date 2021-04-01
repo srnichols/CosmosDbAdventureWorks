@@ -137,11 +137,8 @@ namespace CosmosDbAdventureWorksApi
     public class ProductMeta
     {
         public string id { get; set; }
-
         public string name { get; set; }
-
         public string type { get; set; }
-
         public string _rid { get; set; }
         public string _self { get; set; }
         public string _etag { get; set; }
