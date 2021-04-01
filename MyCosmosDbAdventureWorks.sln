@@ -13,6 +13,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "change-feed-categories", "c
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "change-feed-category-sales", "change-feed-category-sales\change-feed-category-sales.csproj", "{FCB5D1FA-60D1-40C8-AE2D-BECBF0BE6D74}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorClientDemo", "BlazorClientDemo\BlazorClientDemo.csproj", "{32298E98-5444-414E-A9C8-EE4E4498E7AA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CosmosDbAdventureWorksApi", "CosmosDbAdventureWorksApi\CosmosDbAdventureWorksApi.csproj", "{C3BA866E-C5D7-48BD-A544-8EE867D299E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{FCB5D1FA-60D1-40C8-AE2D-BECBF0BE6D74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCB5D1FA-60D1-40C8-AE2D-BECBF0BE6D74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCB5D1FA-60D1-40C8-AE2D-BECBF0BE6D74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32298E98-5444-414E-A9C8-EE4E4498E7AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32298E98-5444-414E-A9C8-EE4E4498E7AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32298E98-5444-414E-A9C8-EE4E4498E7AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32298E98-5444-414E-A9C8-EE4E4498E7AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3BA866E-C5D7-48BD-A544-8EE867D299E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3BA866E-C5D7-48BD-A544-8EE867D299E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3BA866E-C5D7-48BD-A544-8EE867D299E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3BA866E-C5D7-48BD-A544-8EE867D299E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
