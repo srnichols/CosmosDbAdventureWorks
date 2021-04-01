@@ -110,22 +110,25 @@ namespace CosmosDbAdventureWorksApi
         [FunctionName("DeleteProductCategory")]
         public static async Task<IActionResult> DeletePersonAsync(
             [HttpTrigger(AuthorizationLevel.Function, "delete", 
-                Route = "DeleteProductCategory/delete/{id}")] HttpRequest req,
+                Route = "DeleteProductCategory/delete/{id}/{pk}")] HttpRequest req,
             [CosmosDB(
                 ConnectionStringSetting = "CosmosDBConnection")] DocumentClient documentClient,
             string id,
+            string pk,
             ILogger log)
-        {
+            {
             try 
             {
+
                 var data = JsonConvert.DeserializeObject<ProductMeta>(
                         await new StreamReader(req.Body).ReadToEndAsync());
 
                 Uri collectionUri = UriFactory.CreateDocumentUri("database-v4", "productMeta", id);
-                await documentClient.DeleteDocumentAsync(collectionUri, new RequestOptions { PartitionKey = new PartitionKey("category") });
+                await documentClient.DeleteDocumentAsync(collectionUri, new RequestOptions { PartitionKey = new PartitionKey(pk) });
                 return new OkObjectResult("Data Deleted");
+                
             }
-            catch (Exception ex)
+            catch (DocumentClientException ex)
             {
                 log.LogError(ex, ex.Message);
                 return new BadRequestObjectResult(ex.Message);
