@@ -14,10 +14,11 @@ using Newtonsoft.Json;
 namespace CosmosDbAdventureWorksApi
 
 {
-    public static class ListAllProductCategories
+    public static class ProductMetaFunction
     {
+        #region ListAllProductCategory
         [FunctionName("ListAllProductCategories")]
-        public static IActionResult Run(
+        public static IActionResult RunListAllProductCategories(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get",
                 Route = null)] HttpRequest req,
             [CosmosDB(
@@ -43,30 +44,30 @@ namespace CosmosDbAdventureWorksApi
                 return new BadRequestObjectResult(ex.Message);
             }
         }
-    }
+        #endregion
 
-    public static class GetProductCategoryById
-    {
+        #region GetProductCategoryById 
         [FunctionName("GetProductCategoryById")]
-        public static IActionResult Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get",
+        public static IActionResult RunGetProductCategoryById(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get",
                 Route = "GetProductCategoryById/{id}")]HttpRequest req,
-            [CosmosDB(
+        [CosmosDB(
                 databaseName: "database-v4",
                 collectionName: "productMeta",
                 ConnectionStringSetting = "CosmosDBConnection",
-                SqlQuery = "select * from c where c.id = {id}")]
-                IEnumerable<ProductMeta> CategoryItems, ILogger log)
+                Id = "{id}",
+                PartitionKey = "category")] ProductMeta categoryDocument,
+        ILogger log)
         {
             try
             {
-                if (CategoryItems is null)
+                if (categoryDocument is null)
                 {
                     return new NotFoundResult();
                 }
 
                 log.LogInformation("GetProductCategoryById function processed a request.");
-                return new OkObjectResult(CategoryItems);
+                return new OkObjectResult(categoryDocument);
             }
             catch (Exception ex)
             {
@@ -74,19 +75,18 @@ namespace CosmosDbAdventureWorksApi
                 return new BadRequestObjectResult(ex.Message);
             }
         }
-    }
+        #endregion
 
-    public static class UpsertProductCategory
-    {
+        #region UpsertProductCategory
         [FunctionName("UpsertProductCategory")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post",
+        public static async Task<IActionResult> RunUpsertProductCategory(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post",
                 Route = "UpsertProductCategory/upsert")] HttpRequest req,
-            [CosmosDB(
+        [CosmosDB(
                 databaseName: "database-v4",
                 collectionName: "productMeta",
                 ConnectionStringSetting = "CosmosDBConnection")] IAsyncCollector<ProductMeta> collector,
-            ILogger log)
+        ILogger log)
         {
             try
             {
@@ -103,30 +103,28 @@ namespace CosmosDbAdventureWorksApi
                 return new BadRequestObjectResult(ex.Message);
             }
         }
-    }
+        #endregion
 
-    public static class DeleteProductCategory
-    {
+        #region DeleteProductCategory
         [FunctionName("DeleteProductCategory")]
-        public static async Task<IActionResult> DeletePersonAsync(
-            [HttpTrigger(AuthorizationLevel.Function, "delete", 
+        public static async Task<IActionResult> RunDeleteProductCategory(
+        [HttpTrigger(AuthorizationLevel.Function, "delete",
                 Route = "DeleteProductCategory/delete/{id}/{pk}")] HttpRequest req,
-            [CosmosDB(
+        [CosmosDB(
                 ConnectionStringSetting = "CosmosDBConnection")] DocumentClient documentClient,
-            string id,
-            string pk,
-            ILogger log)
+        string id,
+        string pk,
+        ILogger log)
+        {
+            try
             {
-            try 
-            {
-
                 var data = JsonConvert.DeserializeObject<ProductMeta>(
                         await new StreamReader(req.Body).ReadToEndAsync());
 
                 Uri collectionUri = UriFactory.CreateDocumentUri("database-v4", "productMeta", id);
                 await documentClient.DeleteDocumentAsync(collectionUri, new RequestOptions { PartitionKey = new PartitionKey(pk) });
                 return new OkObjectResult("Data Deleted");
-                
+
             }
             catch (DocumentClientException ex)
             {
@@ -134,7 +132,7 @@ namespace CosmosDbAdventureWorksApi
                 return new BadRequestObjectResult(ex.Message);
             }
         }
-
+        #endregion
     }
 
     public class ProductMeta
@@ -145,9 +143,8 @@ namespace CosmosDbAdventureWorksApi
         public string _rid { get; set; }
         public string _self { get; set; }
         public string _etag { get; set; }
-        public string _attachmernts { get; set; }
+        public string _attachments { get; set; }
         public int _ts { get; set; }
-
     }
 
 }

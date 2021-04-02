@@ -1,4 +1,4 @@
-﻿@page "/categories"
+﻿@page "/category"
 @inject HttpClient Http
 
 
@@ -24,7 +24,7 @@ else
             @foreach (var category in myCategories)
             {
                 <tr>
-                    <td>@category.id</td>
+                    <td><a href="@($"categorydetails/{category.id}")" class="btn btn-primary m-1">View</a>@category.id</td>
                     <td>@category.name</td>
                     <td>@category.type</td>
                 </tr>

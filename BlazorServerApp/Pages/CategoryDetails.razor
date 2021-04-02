@@ -1,0 +1,27 @@
+﻿@page "/categorydetails/{id}"
+
+<h2>Product Category Details</h2>
+
+<div class="row justified-content-center m-3">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h4><strong>Category Name :</strong> @myProductCategory.name</h4>
+            </div>
+            <div class="card-body text-left">
+                <h6><strong>Category Type :</strong> @myProductCategory.type</h6>
+                <h6><strong>Category Id :</strong> @myProductCategory.id</h6>
+                <h6><strong>Category _rid :</strong> @myProductCategory._rid</h6>
+                <h6><strong>Category _self :</strong> @myProductCategory._self</h6>
+                <h6><strong>Category _eTag :</strong> @myProductCategory._etag</h6>
+                <h6><strong>Category _attachments :</strong> @myProductCategory._attachments</h6>
+                <h6><strong>Category _ts :</strong> @myProductCategory._ts (@documentTime)</h6>
+            </div>
+            <div class="card-footer test-center">
+                <a href="/category" class="btn btn-primary">Back</a>
+                <a href="#" class="btn btn-primary">Edit</a>
+                <a href="#" class="btn btn-primary">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
