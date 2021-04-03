@@ -108,7 +108,7 @@ namespace CosmosDbAdventureWorksApi
         #region DeleteProductCategory
         [FunctionName("DeleteProductCategory")]
         public static async Task<IActionResult> RunDeleteProductCategory(
-        [HttpTrigger(AuthorizationLevel.Function, "delete",
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete",
                 Route = "DeleteProductCategory/delete/{id}")] HttpRequest req,
         [CosmosDB(
                 ConnectionStringSetting = "CosmosDBConnection")] DocumentClient documentClient,
