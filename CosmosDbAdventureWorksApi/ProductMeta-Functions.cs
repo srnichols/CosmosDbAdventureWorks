@@ -109,11 +109,10 @@ namespace CosmosDbAdventureWorksApi
         [FunctionName("DeleteProductCategory")]
         public static async Task<IActionResult> RunDeleteProductCategory(
         [HttpTrigger(AuthorizationLevel.Function, "delete",
-                Route = "DeleteProductCategory/delete/{id}/{pk}")] HttpRequest req,
+                Route = "DeleteProductCategory/delete/{id}")] HttpRequest req,
         [CosmosDB(
                 ConnectionStringSetting = "CosmosDBConnection")] DocumentClient documentClient,
         string id,
-        string pk,
         ILogger log)
         {
             try
@@ -122,7 +121,7 @@ namespace CosmosDbAdventureWorksApi
                         await new StreamReader(req.Body).ReadToEndAsync());
 
                 Uri collectionUri = UriFactory.CreateDocumentUri("database-v4", "productMeta", id);
-                await documentClient.DeleteDocumentAsync(collectionUri, new RequestOptions { PartitionKey = new PartitionKey(pk) });
+                await documentClient.DeleteDocumentAsync(collectionUri, new RequestOptions { PartitionKey = new PartitionKey("category") });
                 return new OkObjectResult("Data Deleted");
 
             }

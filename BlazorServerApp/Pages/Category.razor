@@ -3,12 +3,14 @@
 
 
 <h1>Product Categories</h1>
-
 <p>This component demonstrates fetching data from the server.</p>
+<a href="@($"categoryedit/")" class="btn btn-success m-1">New</a>
 
 @if (myCategories == null)
 {
-    <p><em>Loading...</em></p>
+    <p>
+        <em>Loading...</em> <div class="spinner"></div>
+    </p>
 }
 else
 {    

@@ -11,12 +11,15 @@ namespace BlazorServerApp.Pages
     public partial class CategoryDetails : ComponentBase
     {
         public ProductMeta myProductCategory { get; set; } = new ProductMeta();
-        public long epochTime;
+        public long epochTime = 0;
         public DateTime documentTime;
 
         [Inject]
         public IProductMetaService ProductMetaService { get; set;}
-    
+        
+        [Inject]
+        public NavigationManager NavigationManager { get; set; }
+
         [Parameter]
         public string Id { get; set; }
 
@@ -25,9 +28,13 @@ namespace BlazorServerApp.Pages
             try 
             { 
                 myProductCategory = await ProductMetaService.GetProductCategory(Id);
-                epochTime = myProductCategory._ts;
-                documentTime = new DateTime(1970, 1, 1).AddSeconds(epochTime);
-                StateHasChanged();
+                if (myProductCategory != null)
+                {
+                    epochTime = myProductCategory._ts;
+                    documentTime = new DateTime(1970, 1, 1).AddSeconds(epochTime);
+                    StateHasChanged();
+                }
+                
             }
             catch (Exception ex)
             {
@@ -35,5 +42,10 @@ namespace BlazorServerApp.Pages
             }
         }
 
+        protected async Task Delete_Click() 
+        {
+            await ProductMetaService.DeleteProductCategory(Id);
+            NavigationManager.NavigateTo($"/category/");
+        }
     }
 }

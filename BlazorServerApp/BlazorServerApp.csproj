@@ -9,6 +9,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="5.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Forms" Version="5.0.4" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.17.1" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
   </ItemGroup>
 

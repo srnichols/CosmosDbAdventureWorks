@@ -1,12 +1,19 @@
-﻿@page "/categorydetails/{id}"
+﻿@page "/categoryedit/{id}"
+@page "/categoryedit/"
 
-<h2>Product Category Details</h2>
+<h2>@PageHeaderText</h2>
 
 <div class="row justified-content-center m-3">
+   <EditForm Model="@myProductCategory" OnValidSubmit="HandleValidSubmit">
+       <DataAnnotationsValidator />
     <div class="col-sm-12">
         <div class="card">
             <div class="card-header">
-                <h4><strong>Category Name :</strong> @myProductCategory.name</h4>
+                <h4><strong>Category Name :</strong>
+                    <InputText id="name" class="form-control" placeholder="Category Name"
+                        @bind-Value="myProductCategory.name"/>
+                    <ValidationMessage For="@(()=> myProductCategory.name)" />    
+                </h4>
             </div>
             <div class="card-body text-left">
                 <h6><strong>Category Type :</strong> @myProductCategory.type</h6>
@@ -18,10 +25,10 @@
                 <h6><strong>Category _ts :</strong> @myProductCategory._ts (@documentTime)</h6>
             </div>
             <div class="card-footer test-center">
-                <a href="/category" class="btn btn-primary">Back</a>
-                <a href="@($"categoryedit/{myProductCategory.id}")" class="btn btn-primary">Edit</a>
-                <button class="btn btn-danger" type="button" @onclick="Delete_Click">Delete</button>  
+                <a href="@PageHeaderNavUri" class="btn btn-primary">Back</a>
+                <button class="btn btn-success" type="submit">Submit</button>
             </div>
         </div>
     </div>
+  </EditForm>
 </div>
