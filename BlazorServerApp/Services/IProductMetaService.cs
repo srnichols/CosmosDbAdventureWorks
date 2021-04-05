@@ -14,5 +14,11 @@ namespace BlazorServerApp.Services
         Task<ProductMeta> UpdateProductCategory(ProductMeta updateCategory);
         Task<ProductMeta> CreateProductCategory(ProductMeta createCategory);
         Task<HttpResponseMessage> DeleteProductCategory(string id);
+
+        Task<IEnumerable<ProductMeta>> ListAllProductTags();
+        Task<ProductMeta> GetProductTag(string id);
+        Task<ProductMeta> UpdateProductTag(ProductMeta updateTag);
+        Task<ProductMeta> CreateProductTag(ProductMeta createTag);
+        Task<HttpResponseMessage> DeleteProductTag(string id);
     }
 }

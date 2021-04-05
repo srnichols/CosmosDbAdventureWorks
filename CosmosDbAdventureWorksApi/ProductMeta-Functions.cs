@@ -46,8 +46,8 @@ namespace CosmosDbAdventureWorksApi
         }
         #endregion
 
-        #region ListAllProductTag
-        [FunctionName("ListAllProductTag")]
+        #region ListAllProductTags
+        [FunctionName("ListAllProductTags")]
         public static IActionResult RunListAllProductTags(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get",
                 Route = null)] HttpRequest req,
