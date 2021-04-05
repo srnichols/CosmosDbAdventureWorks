@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace BlazorServerApp.Pages
 {
-    public partial class CategoryEdit : ComponentBase
+    public partial class TagEdit : ComponentBase
     {
-        public ProductMeta myProductCategory { get; set; } = new ProductMeta();
+        public ProductMeta myProductTag { get; set; } = new ProductMeta();
         public long epochTime;
         public DateTime documentTime;
         public string PageHeaderText { get; set; }
@@ -30,23 +30,23 @@ namespace BlazorServerApp.Pages
         {
             if (Id != null)
             {
-                PageHeaderText = "Edit Product Category";
-                PageHeaderNavUri = $"categorydetails/{Id}";
+                PageHeaderText = "Edit Product Tag";
+                PageHeaderNavUri = $"tagdetails/{Id}";
 
-                myProductCategory = await ProductMetaService.GetProductCategory(Id);
-                epochTime = myProductCategory._ts;
+                myProductTag = await ProductMetaService.GetProductTag(Id);
+                epochTime = myProductTag._ts;
                 documentTime = new DateTime(1970, 1, 1).AddSeconds(epochTime);
                 StateHasChanged();
             }
             else 
             {
-                PageHeaderText = "New Product Category";
-                PageHeaderNavUri = $"category/";
+                PageHeaderText = "New Product Tag";
+                PageHeaderNavUri = $"tag/";
 
-                myProductCategory = new ProductMeta
+                myProductTag = new ProductMeta
                 {
                     id = Guid.NewGuid().ToString(),
-                    type = "category"
+                    type = "tag"
                 };
                 StateHasChanged();
             }
@@ -59,16 +59,16 @@ namespace BlazorServerApp.Pages
 
             if (Id != null)
             {
-                result = await ProductMetaService.UpdateProductCategory(myProductCategory);
+                result = await ProductMetaService.UpdateProductTag(myProductTag);
             }
             else
             {
-                result = await ProductMetaService.CreateProductCategory(myProductCategory);
+                result = await ProductMetaService.CreateProductTag(myProductTag);
             }
             
             if (result != null)
             {
-                NavigationManager.NavigateTo($"/categorydetails/{result.id}");
+                NavigationManager.NavigateTo($"/tagdetails/{result.id}");
             }
 
         }

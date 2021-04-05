@@ -1,0 +1,34 @@
+﻿@page "/tagedit/{id}"
+@page "/tagedit/"
+
+<h2>@PageHeaderText</h2>
+
+<div class="row justified-content-center m-3">
+   <EditForm Model="@myProductTag" OnValidSubmit="HandleValidSubmit">
+       <DataAnnotationsValidator />
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h4><strong>Tag Name :</strong>
+                    <InputText id="name" class="form-control" placeholder="Tag Name"
+                        @bind-Value="myProductTag.name"/>
+                    <ValidationMessage For="@(()=> myProductTag.name)" />    
+                </h4>
+            </div>
+            <div class="card-body text-left">
+                <h6><strong>Tag Type :</strong> @myProductTag.type</h6>
+                <h6><strong>Tag Id :</strong> @myProductTag.id</h6>
+                <h6><strong>Tag _rid :</strong> @myProductTag._rid</h6>
+                <h6><strong>Tag _self :</strong> @myProductTag._self</h6>
+                <h6><strong>Tag _eTag :</strong> @myProductTag._etag</h6>
+                <h6><strong>Tag _attachments :</strong> @myProductTag._attachments</h6>
+                <h6><strong>Tag _ts :</strong> @myProductTag._ts (@documentTime)</h6>
+            </div>
+            <div class="card-footer test-center">
+                <a href="@PageHeaderNavUri" class="btn btn-primary">Back</a>
+                <button class="btn btn-success" type="submit">Submit</button>
+            </div>
+        </div>
+    </div>
+  </EditForm>
+</div>

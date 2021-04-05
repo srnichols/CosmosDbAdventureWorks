@@ -1,0 +1,36 @@
+﻿@page "/tag"
+@inject HttpClient Http
+
+
+<h1>Product Tags</h1>
+<p>This component demonstrates fetching data from the server.</p>
+<a href="@($"tagedit/")" class="btn btn-success m-1">New</a>
+
+@if (myTags == null)
+{
+    <p>
+        <em>Loading...</em> <div class="spinner"></div>
+    </p>
+}
+else
+{    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>TagId</th>
+                <th>TagName</th>
+                <th>Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tag in myTags)
+            {
+                <tr>
+                    <td><a href="@($"tagdetails/{tag.id}")" class="btn btn-primary m-1">View</a>@tag.id</td>
+                    <td>@tag.name</td>
+                    <td>@tag.type</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

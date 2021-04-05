@@ -1,0 +1,27 @@
+﻿@page "/tagdetails/{id}"
+
+<h2>Product Tag Details</h2>
+
+<div class="row justified-content-center m-3">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h4><strong>Tag Name :</strong> @myProductTag.name</h4>
+            </div>
+            <div class="card-body text-left">
+                <h6><strong>Tag Type :</strong> @myProductTag.type</h6>
+                <h6><strong>Tag Id :</strong> @myProductTag.id</h6>
+                <h6><strong>Tag _rid :</strong> @myProductTag._rid</h6>
+                <h6><strong>Tag _self :</strong> @myProductTag._self</h6>
+                <h6><strong>Tag _eTag :</strong> @myProductTag._etag</h6>
+                <h6><strong>Tag _attachments :</strong> @myProductTag._attachments</h6>
+                <h6><strong>Tag _ts :</strong> @myProductTag._ts (@documentTime)</h6>
+            </div>
+            <div class="card-footer test-center">
+                <a href="/Tag" class="btn btn-primary">Back</a>
+                <a href="@($"tagedit/{myProductTag.id}")" class="btn btn-primary">Edit</a>
+                <button class="btn btn-danger" type="button" @onclick="Delete_Click">Delete</button>  
+            </div>
+        </div>
+    </div>
+</div>
