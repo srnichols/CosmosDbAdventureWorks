@@ -1,0 +1,36 @@
+﻿@page "/product"
+@inject HttpClient Http
+
+
+<h1>Products</h1>
+<p>This component demonstrates fetching data from the server.</p>
+<a href="@($"productedit/")" class="btn btn-success m-1">New</a>
+
+@if (myProducts == null)
+{
+    <p>
+        <em>Loading...</em> <div class="spinner"></div>
+    </p>
+}
+else
+{    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ProductsId</th>
+                <th>ProductSku</th>
+                <th>ProductName</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in myProducts)
+            {
+                <tr>
+                    <td><a href="@($"productdetails/{product.id}")" class="btn btn-primary m-1">View</a>@product.id</td>
+                    <td>@product.sku</td>
+                    <td>@product.name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
