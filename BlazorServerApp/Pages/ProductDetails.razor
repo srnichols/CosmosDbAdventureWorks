@@ -18,24 +18,23 @@ else
             </div>
             <div class="card-body text-left">
                 <h6><strong>Product Id :</strong> @myProduct.id</h6>
+                <h6><strong>Product Category : </strong>
+                    @if (myProduct != null)
+                    {
+                       <a href="@($"categorydetails/{myProduct.categoryId}")"> @myProduct.categoryName</a> 
+                    }                                     
+                </h6>
                 <h6><strong>Product Sku :</strong> @myProduct.sku</h6>
-                <h6><strong>Product Category :</strong> @myProduct.categoryName</h6>
+                <h6><strong>Product Name :</strong> @myProduct.name</h6>
                 <h6><strong>Product Description :</strong> @myProduct.description</h6>
                 <h6><strong>Product Price :</strong> @myProduct.price</h6>
-                <h6>
-                    <strong>Product Tags :</strong>
-                    @{
-                            if (myProduct.tags == null)
-                            {
-                               <a href="@($"tagedit")">Add</a>
-                            }
-                            else
-                            {
-                                foreach (var tagGroup in myProduct.tags)
-                                {
-                                    <a href="@($"tagdetails/{tagGroup.id}")">@tagGroup.name,&nbsp;</a> 
-                                }
-                            }
+                <h6><strong>Product Tags : </strong>
+                    @if (myProduct.tags != null)
+                    {
+                      foreach (var tagGroup in myProduct.tags)
+                        {
+                          <a href="@($"tagdetails/{tagGroup.id}")"> @tagGroup.name,&nbsp;</a> 
+                        }
                     }                    
                 </h6>
                 <h6><strong>Product _rid :</strong> @myProduct._rid</h6>
