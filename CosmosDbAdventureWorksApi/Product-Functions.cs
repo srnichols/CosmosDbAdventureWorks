@@ -137,10 +137,19 @@ namespace CosmosDbAdventureWorksApi
 
     }
 
+    /// <summary>
+    /// Product Model
+    /// </summary>
     public class Product
-    {
+    {   
+        /// <summary>
+        /// Product unique ID
+        /// </summary>
         [Required]
         public string id { get; set; }
+        /// <summary>
+        /// Id of the Product Category (is PK)
+        /// </summary>
         [Required]
         public string categoryId { get; set; }
         public string categoryName { get; set; }

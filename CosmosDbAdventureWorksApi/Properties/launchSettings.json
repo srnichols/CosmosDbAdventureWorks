@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CosmosDbAdventureWorksApi": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

@@ -11,9 +11,7 @@ namespace BlazorServerApp.Models
     {
 
         public string id { get; set; }
-        [Required]
-        [MinLength(3)]
-        [MaxLength(75)]
+        [Required, MinLength(3), MaxLength(75)]
         public string name { get; set; }
         public string type { get; set; }
         public string _rid { get; set; }

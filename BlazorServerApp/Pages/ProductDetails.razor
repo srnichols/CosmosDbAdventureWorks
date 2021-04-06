@@ -1,0 +1,55 @@
+﻿@page "/productdetails/{id}/{pk}"
+
+<h2>Product Details</h2>
+
+@if (myProduct == null)
+{
+    <p>
+        <em>Loading...</em> <div class="spinner"></div>
+    </p>
+}
+else
+{ 
+<div class="row justified-content-center m-3">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h4><strong>Product Name :</strong> @myProduct.name</h4>
+            </div>
+            <div class="card-body text-left">
+                <h6><strong>Product Id :</strong> @myProduct.id</h6>
+                <h6><strong>Product Sku :</strong> @myProduct.sku</h6>
+                <h6><strong>Product Category :</strong> @myProduct.categoryName</h6>
+                <h6><strong>Product Description :</strong> @myProduct.description</h6>
+                <h6><strong>Product Price :</strong> @myProduct.price</h6>
+                <h6>
+                    <strong>Product Tags :</strong>
+                    @{
+                            if (myProduct.tags == null)
+                            {
+                               <a href="@($"tagedit")">Add</a>
+                            }
+                            else
+                            {
+                                foreach (var tagGroup in myProduct.tags)
+                                {
+                                    <a href="@($"tagdetails/{tagGroup.id}")">@tagGroup.name,&nbsp;</a> 
+                                }
+                            }
+                    }                    
+                </h6>
+                <h6><strong>Product _rid :</strong> @myProduct._rid</h6>
+                <h6><strong>Product _self :</strong> @myProduct._self</h6>
+                <h6><strong>Product _eTag :</strong> @myProduct._etag</h6>
+                <h6><strong>Product _attachments :</strong> @myProduct._attachments</h6>
+                <h6><strong>Product _ts :</strong> @myProduct._ts (@documentTime)</h6>
+            </div>
+            <div class="card-footer test-center">
+                <a href="/product" class="btn btn-primary">Back</a>
+                <a href="@($"productedit/{myProduct.id}")" class="btn btn-primary">Edit</a>
+                <button class="btn btn-danger" type="button" @onclick="Delete_Click">Delete</button>  
+            </div>
+        </div>
+    </div>
+</div>
+}

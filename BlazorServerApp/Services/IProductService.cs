@@ -10,10 +10,10 @@ namespace BlazorServerApp.Services
     public interface IProductService
     {
         Task<IEnumerable<Product>> ListAllProducts();
-        Task<Product> GetProduct(string id);
+        Task<Product> GetProduct(string id, string pk);
         Task<Product> UpdateProduct(Product updateProduct);
         Task<Product> CreateProduct(Product createProduct);
-        Task<HttpResponseMessage> DeleteProduct(string id);
+        Task<HttpResponseMessage> DeleteProduct(string id, string pk);
 
     }
 }

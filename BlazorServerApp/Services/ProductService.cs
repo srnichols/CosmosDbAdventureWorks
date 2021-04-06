@@ -31,16 +31,16 @@ namespace BlazorServerApp.Services
             }
         }
 
-        public async Task<HttpResponseMessage> DeleteProduct(string id)
+        public async Task<HttpResponseMessage> DeleteProduct(string id, string pk)
         {
-            return await httpClient.DeleteAsync($"api/DeleteProduct/delete/{id}");
+            return await httpClient.DeleteAsync($"api/DeleteProduct/delete/{id}/{pk}");
         }
 
-        public async Task<Product> GetProduct(string id)
+        public async Task<Product> GetProduct(string id, string pk)
         {
             try
             {
-                return await httpClient.GetJsonAsync<Product>($"api/GetProductById/{id}");
+                return await httpClient.GetJsonAsync<Product>($"api/GetProductById/{id}/{pk}");
             }
             catch (Exception ex)
             {

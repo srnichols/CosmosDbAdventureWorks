@@ -26,7 +26,7 @@ else
             @foreach (var product in myProducts)
             {
                 <tr>
-                    <td><a href="@($"productdetails/{product.id}")" class="btn btn-primary m-1">View</a></td>
+                    <td><a href="@($"productdetails/{product.id}/{product.categoryId}")" class="btn btn-primary m-1">View</a></td>
                     <td>@product.sku</td>
                     <td>@product.name</td>
                 </tr>

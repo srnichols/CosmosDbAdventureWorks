@@ -14,17 +14,11 @@ namespace BlazorServerApp.Models
         [Required]
         public string categoryId { get; set; }
         public string categoryName { get; set; }
-        [Required]
-        [MinLength(3)]
-        [MaxLength(25)]
+        [Required, MinLength(3), MaxLength(25)]
         public string sku { get; set; }
-        [Required]
-        [MinLength(3)]
-        [MaxLength(75)]
+        [Required, MinLength(3), MaxLength(75)]
         public string name { get; set; }
-        [Required]
-        [MinLength(5)]
-        [MaxLength(250)]
+        [Required, MinLength(5), MaxLength(250)]
         public string description { get; set; }
         [Required]
         public double price { get; set; }
@@ -40,5 +34,6 @@ namespace BlazorServerApp.Models
     {
         public string id { get; set; }
         public string name { get; set; }
+
     }
 }
