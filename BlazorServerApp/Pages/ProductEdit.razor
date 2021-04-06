@@ -1,0 +1,62 @@
+﻿@page "/productedit/{id}/{pk}"
+@page "/productedit/"
+
+<h2>@PageHeaderText</h2>
+
+<div class="row justified-content-center m-3">
+   <EditForm Model="@myProduct" OnValidSubmit="HandleValidSubmit">
+       <DataAnnotationsValidator />
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h6><strong>Product Name :</strong>
+                    <InputText id="name" class="form-control" placeholder="Product Name"
+                        @bind-Value="myProduct.name"/>
+                    <ValidationMessage For="@(()=> myProduct.name)" />    
+                </h6>
+                <h6><strong>Product Category :</strong>
+                    <InputText id="categoryName" class="form-control" placeholder="Product Category"
+                        @bind-Value="myProduct.categoryName"/>
+                    <ValidationMessage For="@(()=> myProduct.categoryName)" />    
+                </h6>
+                <h6><strong>Product Sku :</strong>
+                    <InputText id="sku" class="form-control" placeholder="Product Sku"
+                        @bind-Value="myProduct.sku"/>
+                    <ValidationMessage For="@(()=> myProduct.sku)" />    
+                </h6>
+                <h6><strong>Product Description :</strong>
+                    <InputText id="description" class="form-control" placeholder="Product Description"
+                        @bind-Value="myProduct.description"/>
+                    <ValidationMessage For="@(()=> myProduct.description)" />    
+                </h6>
+                <h6><strong>Product Price :</strong>
+                    <InputText id="price" class="form-control" placeholder="Product Price"
+                        @bind-Value="myProduct.price"/>
+                    <ValidationMessage For="@(()=> myProduct.price)" />    
+                </h6>
+            </div>
+            <div class="card-body text-left">
+                <h6><strong>Product Tags : </strong>
+                    @if (myProduct.tags != null)
+                    {
+                      foreach (var tagGroup in myProduct.tags)
+                        {
+                          <a href="@($"tagdetails/{tagGroup.id}")"> @tagGroup.name,&nbsp;</a> 
+                        }
+                    }                    
+                </h6>
+                <h6><strong>Product Id :</strong> @myProduct.id</h6>
+                <h6><strong>Product _rid :</strong> @myProduct._rid</h6>
+                <h6><strong>Product _self :</strong> @myProduct._self</h6>
+                <h6><strong>Product _eTag :</strong> @myProduct._etag</h6>
+                <h6><strong>Product _attachments :</strong> @myProduct._attachments</h6>
+                <h6><strong>Product _ts :</strong> @myProduct._ts (@documentTime)</h6>
+            </div>
+            <div class="card-footer test-center">
+                <a href="@PageHeaderNavUri" class="btn btn-primary">Back</a>
+                <button class="btn btn-success" type="submit">Submit</button>
+            </div>
+        </div>
+    </div>
+  </EditForm>
+</div>

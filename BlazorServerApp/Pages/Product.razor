@@ -20,6 +20,7 @@ else
                 <th>ProductsId</th>
                 <th>ProductSku</th>
                 <th>ProductName</th>
+                <th>ProductPrice</th>
             </tr>
         </thead>
         <tbody>
@@ -29,6 +30,7 @@ else
                     <td><a href="@($"productdetails/{product.id}/{product.categoryId}")" class="btn btn-primary m-1">View</a></td>
                     <td>@product.sku</td>
                     <td>@product.name</td>
+                    <td>@product.price</td>
                 </tr>
             }
         </tbody>

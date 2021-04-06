@@ -25,7 +25,6 @@ else
                     }                                     
                 </h6>
                 <h6><strong>Product Sku :</strong> @myProduct.sku</h6>
-                <h6><strong>Product Name :</strong> @myProduct.name</h6>
                 <h6><strong>Product Description :</strong> @myProduct.description</h6>
                 <h6><strong>Product Price :</strong> @myProduct.price</h6>
                 <h6><strong>Product Tags : </strong>
@@ -45,7 +44,7 @@ else
             </div>
             <div class="card-footer test-center">
                 <a href="/product" class="btn btn-primary">Back</a>
-                <a href="@($"productedit/{myProduct.id}")" class="btn btn-primary">Edit</a>
+                <a href="@($"productedit/{myProduct.id}/{myProduct.categoryId}")" class="btn btn-primary">Edit</a>
                 <button class="btn btn-danger" type="button" @onclick="Delete_Click">Delete</button>  
             </div>
         </div>

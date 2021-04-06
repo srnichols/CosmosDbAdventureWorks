@@ -21,7 +21,7 @@ namespace BlazorServerApp.Models
         [Required, MinLength(5), MaxLength(250)]
         public string description { get; set; }
         [Required]
-        public double price { get; set; }
+        public string price { get; set; }
         public List<Tag> tags { get; set; }
         public string _rid { get; set; }
         public string _self { get; set; }
