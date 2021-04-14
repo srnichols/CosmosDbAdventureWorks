@@ -26,7 +26,7 @@ namespace CosmosDbAdventureWorksApi
                 databaseName: "database-v4",
                 collectionName: "product",
                 ConnectionStringSetting = "CosmosDBConnection",
-                SqlQuery = "SELECT * FROM c")]
+                SqlQuery = "SELECT * FROM c ORDER By c.name")]
                 IEnumerable<Product> outputItems, ILogger log)
         {
             try

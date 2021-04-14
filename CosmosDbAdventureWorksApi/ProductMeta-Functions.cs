@@ -26,7 +26,7 @@ namespace CosmosDbAdventureWorksApi
                 databaseName: "database-v4",
                 collectionName: "productMeta",
                 ConnectionStringSetting = "CosmosDBConnection",
-                SqlQuery = "SELECT * FROM c WHERE c.type = 'category'")]
+                SqlQuery = "SELECT * FROM c WHERE c.type = 'category' ORDER By c.name")]
                 IEnumerable<ProductMeta> outputItems, ILogger log)
         {
             try
@@ -56,7 +56,7 @@ namespace CosmosDbAdventureWorksApi
                 databaseName: "database-v4",
                 collectionName: "productMeta",
                 ConnectionStringSetting = "CosmosDBConnection",
-                SqlQuery = "SELECT * FROM c WHERE c.type = 'tag'")]
+                SqlQuery = "SELECT * FROM c WHERE c.type = 'tag' ORDER By c.name")]
                 IEnumerable<ProductMeta> outputItems, ILogger log)
         {
             try
