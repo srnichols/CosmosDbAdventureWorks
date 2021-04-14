@@ -41,7 +41,7 @@
                         @bind-Value="myProduct.price"/>
                     <ValidationMessage For="@(()=> myProduct.price)" />    
                 </h6>
-                <h6><strong>Product Tags : </strong><br />
+                <h6><strong>Product Tags : </strong></h6><br />
                    <!-- Pick list of Tags to add to product -->
                    <select @onchange="@AddTagToList" class="form-control" placeholder="Product Tag">
                         <option value=""></option> <!--  Add one blank row -->
@@ -56,10 +56,10 @@
                     {
                       foreach (var tagGroup in myProduct.tags)
                         {
-                           <button id="@tagGroup.name" class="btn btn-danger" type="button" @onclick="(() => UpdateTagList(tagGroup.id))">X</button><lable>&nbsp;@tagGroup.name</lable><br /> 
+                           <div style="padding-bottom: 10px"><button id="@tagGroup.name" class="btn btn-danger" type="button" @onclick="(() => UpdateTagList(tagGroup.id))">X</button><lable>&nbsp;@tagGroup.name</lable><br /></div> 
                         }
                     }                    
-                </h6>
+                
             </div>
             <div class="card-body text-left">
                 <h6><strong>Product Id :</strong> @myProduct.id</h6>
