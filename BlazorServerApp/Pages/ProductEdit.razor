@@ -14,11 +14,18 @@
                         @bind-Value="myProduct.name"/>
                     <ValidationMessage For="@(()=> myProduct.name)" />    
                 </h6>
-                <h6><strong>Product Category :</strong>
-                    <InputText id="categoryName" class="form-control" placeholder="Product Category"
-                        @bind-Value="myProduct.categoryName"/>
+                <h6><strong>Product Category :</strong></h6>
+                    <InputSelect id="categoryId" @bind-Value="myProduct.categoryId" class="form-control" placeholder="Product Category">
+                        @foreach (var catItem in myCategories)
+                        {
+                          <option value="@catItem.id">@catItem.name</option>
+                        if (catItem.id == myProduct.categoryId)
+                            {
+                                myProduct.categoryName = catItem.name;
+                            }
+                        }
+                    </InputSelect>
                     <ValidationMessage For="@(()=> myProduct.categoryName)" />    
-                </h6>
                 <h6><strong>Product Sku :</strong>
                     <InputText id="sku" class="form-control" placeholder="Product Sku"
                         @bind-Value="myProduct.sku"/>
@@ -34,17 +41,27 @@
                         @bind-Value="myProduct.price"/>
                     <ValidationMessage For="@(()=> myProduct.price)" />    
                 </h6>
-            </div>
-            <div class="card-body text-left">
-                <h6><strong>Product Tags : </strong>
+                <h6><strong>Product Tags : </strong><br />
+                   <!-- Pick list of Tags to add to product -->
+                   <select @onchange="@AddTagToList" class="form-control" placeholder="Product Tag">
+                        <option value=""></option> <!--  Add one blank row -->
+                        @foreach (var tagItem in myTags)
+                        {
+                          <option value="@tagItem.id">@tagItem.name</option>
+                        }
+                    </select><br />
+
+                    <!-- List out tags in the tags list -->
                     @if (myProduct.tags != null)
                     {
                       foreach (var tagGroup in myProduct.tags)
                         {
-                          <a href="@($"tagdetails/{tagGroup.id}")"> @tagGroup.name,&nbsp;</a> 
+                           <button id="@tagGroup.name" class="btn btn-danger" type="button" @onclick="(() => UpdateTagList(tagGroup.id))">X</button><lable>&nbsp;@tagGroup.name</lable><br /> 
                         }
                     }                    
                 </h6>
+            </div>
+            <div class="card-body text-left">
                 <h6><strong>Product Id :</strong> @myProduct.id</h6>
                 <h6><strong>Product _rid :</strong> @myProduct._rid</h6>
                 <h6><strong>Product _self :</strong> @myProduct._self</h6>

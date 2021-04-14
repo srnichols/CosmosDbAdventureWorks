@@ -6,12 +6,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ProductModel = BlazorServerApp.Models.Product;
+using ProductTag = BlazorServerApp.Models.Tag;
 
 namespace BlazorServerApp.Pages
 {
     public partial class ProductEdit : ComponentBase
     {
         public ProductModel myProduct { get; set; } = new ProductModel();
+        public List<ProductMeta> myCategories { get; set; } = new List<ProductMeta>();
+        public List<ProductMeta> myTags { get; set; } = new List<ProductMeta>();
+        public ProductTag myTag { get; set; } = new ProductTag();
+
         public long epochTime;
         public DateTime documentTime;
         public string PageHeaderText { get; set; }
@@ -20,6 +25,9 @@ namespace BlazorServerApp.Pages
 
         [Inject]
         public IProductService ProductService { get; set; }
+
+        [Inject]
+        public IProductMetaService ProductMetaService { get; set; }
 
         [Inject]
         public NavigationManager NavigationManager { get; set; }
@@ -32,6 +40,11 @@ namespace BlazorServerApp.Pages
 
         protected async override Task OnInitializedAsync()
         {
+            //Load up collections for dropdown list
+            myCategories = (await ProductMetaService.ListAllProductCategories()).ToList();
+            myTags = (await ProductMetaService.ListAllProductTags()).ToList();
+
+            //Check if new or edit page 
             if (Id != null)
             {
                 PageHeaderText = "Edit Product";
@@ -55,6 +68,28 @@ namespace BlazorServerApp.Pages
                 StateHasChanged();
             }
 
+        }
+
+        protected private void AddTagToList(ChangeEventArgs e)
+        {
+            var item = myTags.Find(x => x.id == e.Value.ToString());
+            ProductTag myTagItem = new ProductTag();
+            myTagItem.id = item.id;
+            myTagItem.name = item.name;
+            
+            // Only add new tag if not already in collection
+            var i = myProduct.tags.Find(x => x.id == e.Value.ToString());
+            if (i == null) 
+            {
+                myProduct.tags.Add(myTagItem);
+                StateHasChanged();
+            }
+        }
+        protected private void UpdateTagList(string id) 
+        {
+            var item = myProduct.tags.Find(x => x.id == id);
+            myProduct.tags.Remove(item);
+            StateHasChanged();
         }
 
         protected async Task HandleValidSubmit()
