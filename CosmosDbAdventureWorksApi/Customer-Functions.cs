@@ -86,7 +86,7 @@ namespace CosmosDbAdventureWorksApi
                 databaseName: "database-v4",
                 collectionName: "customer",
                 ConnectionStringSetting = "CosmosDBConnection",
-                SqlQuery = "SELECT * FROM c WHERE c.type = 'salesOrder' and c.customerId = '{id}' ORDER BY c.orderDate DESC")]
+                SqlQuery = "SELECT * FROM c WHERE c.type = 'salesOrder' and c.customerId = {id} ORDER BY c.orderDate DESC")]
                 IEnumerable<SalesOrder> outputItems, ILogger log)
         {
             try
