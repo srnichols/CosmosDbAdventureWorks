@@ -47,6 +47,36 @@ namespace CosmosDbAdventureWorksApi
         }
         #endregion
 
+        #region ListCustomerHeaderByLastNameSearch
+        [FunctionName("ListCustomerHeaderByLastNameSearch")]
+        public static IActionResult RunListCustomerHeaderByLastNameSearch(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get",
+                Route = "ListCustomerHeaderByLastNameSearch/{sr}")] HttpRequest req,
+            [CosmosDB(
+                databaseName: "database-v4",
+                collectionName: "customer",
+                ConnectionStringSetting = "CosmosDBConnection",
+                SqlQuery = "SELECT c. customerId, c.firstName, c.lastName, c.emailAddress, c.addresses[0].city, c.addresses[0].state FROM c WHERE c.type = 'customer' and c.lastName Like {sr} ORDER BY c.lastName, c.firstName")]
+                IEnumerable<CustomerHeader> outputItems, ILogger log)
+        {
+            try
+            {
+                if (outputItems is null)
+                {
+                    return new NotFoundResult();
+                }
+
+                log.LogInformation("ListCustomerHeaderByLastNameSearch function processed a request.");
+                return new OkObjectResult(outputItems);
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, ex.Message);
+                return new BadRequestObjectResult(ex.Message);
+            }
+        }
+        #endregion
+
         #region ListAllSalesOrders
         [FunctionName("ListAllSalesOrders")]
         public static IActionResult RunListAllSalesOrders(
@@ -301,6 +331,18 @@ namespace CosmosDbAdventureWorksApi
         public string _etag { get; set; }
         public string _attachments { get; set; }
         public int _ts { get; set; }
+
+    }
+
+    public class CustomerHeader
+    {
+        public string customerId { get; set; }
+        public string title { get; set; }
+        public string firstName { get; set; }
+        public string lastName { get; set; }
+        public string emailAddress { get; set; }
+        public string city { get; set; }
+        public string state { get; set; }
 
     }
 
