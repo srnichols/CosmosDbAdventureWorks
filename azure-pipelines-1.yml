@@ -21,6 +21,18 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
+- task: UseDotNet@2
+  displayName: 'Use .NET Core sdk 5.0.100'
+  inputs:
+    packageType: 'sdk'
+    version: '5.0.100'
+    includePreviewVersions: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore'
+  inputs:
+    command: restore
+    projects: '**/*.csproj'
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
@@ -28,10 +40,6 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
 - task: AzureWebApp@1
   inputs:
     azureSubscription: 'myCosmosAdvantureWorks'
