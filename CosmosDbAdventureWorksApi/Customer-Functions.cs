@@ -168,6 +168,36 @@ namespace CosmosDbAdventureWorksApi
         }
         #endregion
 
+        #region GetCustomerCount
+        [FunctionName("GetCustomerCount")]
+        public static IActionResult RunGetCustomerCount(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get",
+                Route = "GetCustomerCount")] HttpRequest req,
+            [CosmosDB(
+                databaseName: "database-v4",
+                collectionName: "customer",
+                ConnectionStringSetting = "CosmosDBConnection",
+                SqlQuery = "SELECT count(c.id) as customerCount FROM c WHERE c.type = 'customer'")]
+                CustomerTotals outputItems, ILogger log)
+        {
+            try
+            {
+                if (outputItems is null)
+                {
+                    return new NotFoundResult();
+                }
+
+                log.LogInformation("GetCustomerCount function processed a request.");
+                return new OkObjectResult(outputItems);
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, ex.Message);
+                return new BadRequestObjectResult(ex.Message);
+            }
+        }
+        #endregion
+
         #region GetSalesOrderById 
         [FunctionName("GetSalesOrderById")]
         public static IActionResult RunGetSalesOrderById(
@@ -343,6 +373,13 @@ namespace CosmosDbAdventureWorksApi
         public string emailAddress { get; set; }
         public string city { get; set; }
         public string state { get; set; }
+
+    }
+
+    public class CustomerTotals
+    {
+        public string customerCount { get; set; }
+        public string dateTimeLatest { get; set; }
 
     }
 
