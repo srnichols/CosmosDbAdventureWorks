@@ -178,7 +178,7 @@ namespace CosmosDbAdventureWorksApi
                 collectionName: "customer",
                 ConnectionStringSetting = "CosmosDBConnection",
                 SqlQuery = "SELECT count(c.id) as customerCount FROM c WHERE c.type = 'customer'")]
-                CustomerTotals outputItems, ILogger log)
+                IEnumerable<CustomerTotals> outputItems, ILogger log)
         {
             try
             {
@@ -379,8 +379,6 @@ namespace CosmosDbAdventureWorksApi
     public class CustomerTotals
     {
         public string customerCount { get; set; }
-        public string dateTimeLatest { get; set; }
-
     }
 
     public class CustomerAddress
