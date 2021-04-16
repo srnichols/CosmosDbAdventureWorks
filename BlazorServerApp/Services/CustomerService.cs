@@ -90,14 +90,31 @@ namespace BlazorServerApp.Services
             return await httpClient.GetJsonAsync<SalesOrder[]>("api/ListAllSalesOrders");
         }
 
-        public async Task<IEnumerable<SalesOrder>> ListAllSalesOrdersByCustomerId()
+        public async Task<IEnumerable<SalesOrder>> ListAllSalesOrdersByCustomerId(string id)
         {
-            return await httpClient.GetJsonAsync<SalesOrder[]>("api/ListAllSalesOrdersByCustomerId/{id}");
+            try 
+            {
+                
+                return await httpClient.GetJsonAsync<SalesOrder[]>($"api/ListAllSalesOrdersByCustomerId/{id}");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"[{ex.GetType().FullName}] {ex.Message}\n{ex.StackTrace}");
+                return null;
+            }
         }
 
-        public async Task<IEnumerable<CustomerHeader>> ListCustomerHeaderByLastNameSearch()
+        public async Task<IEnumerable<CustomerHeader>> ListCustomerHeaderByLastNameSearch(string searchTerm)
         {
-            return await httpClient.GetJsonAsync<CustomerHeader[]>("api/ListCustomerHeaderByLastNameSearch/{sr}");
+            try 
+            { 
+             return await httpClient.GetJsonAsync<CustomerHeader[]>($"api/ListCustomerHeaderByLastNameSearch/{searchTerm}");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"[{ex.GetType().FullName}] {ex.Message}\n{ex.StackTrace}");
+                return null;
+            }
         }
 
         public async Task<Customer> UpdateCustomer(Customer updateCustomer)
@@ -117,7 +134,9 @@ namespace BlazorServerApp.Services
         {
             try
             {
-                return await httpClient.PostJsonAsync<SalesOrder>($"api/UpsertSalesOrder/upsert", updateSalesOrder
+                return await httpClient.PostJsonAsync<SalesOrder>($"api/UpsertSalesOrder/upsert", updateSalesOrder);
+
+            }
             catch (Exception ex)
             {
                 Console.Error.WriteLine($"[{ex.GetType().FullName}] {ex.Message}\n{ex.StackTrace}");

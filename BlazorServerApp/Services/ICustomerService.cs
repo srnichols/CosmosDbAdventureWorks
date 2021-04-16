@@ -10,14 +10,14 @@ namespace BlazorServerApp.Services
     public interface ICustomerService
     {
         Task<IEnumerable<Customer>> ListAllCustomers();
-        Task<IEnumerable<CustomerHeader>> ListCustomerHeaderByLastNameSearch();
+        Task<IEnumerable<CustomerHeader>> ListCustomerHeaderByLastNameSearch(string searchTerm);
         Task<Customer> GetCustomer(string id);
         Task<Customer> UpdateCustomer(Customer updateCustomer);
         Task<Customer> CreateCustomer(Customer createCustomer);
         Task<HttpResponseMessage> DeleteCustomer(string id);
 
         Task<IEnumerable<SalesOrder>> ListAllSalesOrders();
-        Task<IEnumerable<SalesOrder>> ListAllSalesOrdersByCustomerId();
+        Task<IEnumerable<SalesOrder>> ListAllSalesOrdersByCustomerId(string id);
         Task<SalesOrder> GetSalesOrder(string id);
         Task<SalesOrder> UpdateSalesOrder(SalesOrder updateSalesOrder);
         Task<SalesOrder> CreateSalesOrder(SalesOrder createSalesOrder);

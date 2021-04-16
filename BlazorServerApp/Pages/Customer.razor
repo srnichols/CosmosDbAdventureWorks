@@ -1,0 +1,44 @@
+﻿@page "/customer/{SearchKey}"
+@page "/customer"
+@inject HttpClient Http
+
+<h1>Customers</h1>
+<p>This component demonstrates fetching data from the server.</p>
+<a href="@($"customeredit/")" class="btn btn-success m-1">New</a>
+
+<input @bind-value="SearchTerm" @bind-value:event="oninput" />
+
+<a href="@PageHeaderNavUri" class="btn btn-primary">Search</a>
+
+@if (myCustomers == null)
+{
+    <p>
+        <em>Loading...</em> <div class="spinner"></div>
+    </p>
+}
+else
+{    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>CustomerId</th>
+                <th>FirstName</th>
+                <th>LastName</th>
+                <th>City/State</th>
+                <th>eMail</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in myCustomers)
+            {
+                <tr>
+                    <td><a href="@($"customerdetails/{customer.customerId}")" class="btn btn-primary m-1">View</a></td>
+                    <td>@customer.firstName</td>
+                    <td>@customer.lastName</td>
+                    <td>@customer.city, @customer.state</td>
+                    <td>@customer.emailAddress</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

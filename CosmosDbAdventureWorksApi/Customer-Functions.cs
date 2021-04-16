@@ -51,12 +51,12 @@ namespace CosmosDbAdventureWorksApi
         [FunctionName("ListCustomerHeaderByLastNameSearch")]
         public static IActionResult RunListCustomerHeaderByLastNameSearch(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get",
-                Route = "ListCustomerHeaderByLastNameSearch/{sr}")] HttpRequest req,
+                Route = "ListCustomerHeaderByLastNameSearch/{searchTerm}")] HttpRequest req,
             [CosmosDB(
                 databaseName: "database-v4",
                 collectionName: "customer",
                 ConnectionStringSetting = "CosmosDBConnection",
-                SqlQuery = "SELECT c. customerId, c.firstName, c.lastName, c.emailAddress, c.addresses[0].city, c.addresses[0].state FROM c WHERE c.type = 'customer' and c.lastName Like {sr} ORDER BY c.lastName, c.firstName")]
+                SqlQuery = "SELECT c. customerId, c.title, c.firstName, c.lastName, c.emailAddress, c.addresses[0].city, c.addresses[0].state FROM c WHERE c.type = 'customer' and c.lastName Like {searchTerm} ORDER BY c.lastName, c.firstName")]
                 IEnumerable<CustomerHeader> outputItems, ILogger log)
         {
             try

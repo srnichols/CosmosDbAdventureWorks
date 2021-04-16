@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "change-feed-category-sales"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CosmosDbAdventureWorksApi", "CosmosDbAdventureWorksApi\CosmosDbAdventureWorksApi.csproj", "{C3BA866E-C5D7-48BD-A544-8EE867D299E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorServerApp", "BlazorServerApp\BlazorServerApp.csproj", "{BFC7FDD1-4F0A-4C86-8C31-0F5C19AEB377}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorServerApp", "BlazorServerApp\BlazorServerApp.csproj", "{BFC7FDD1-4F0A-4C86-8C31-0F5C19AEB377}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

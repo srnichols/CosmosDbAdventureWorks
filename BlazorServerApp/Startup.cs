@@ -38,6 +38,10 @@ namespace BlazorServerApp
             {
                 client.BaseAddress = new Uri("https://srn-csa-cosmosdbadventureworksapi.azurewebsites.net/");
             });
+            services.AddHttpClient<ICustomerService, CustomerService>(client =>
+            {
+                client.BaseAddress = new Uri("https://srn-csa-cosmosdbadventureworksapi.azurewebsites.net/");
+            });
 
 
         }
