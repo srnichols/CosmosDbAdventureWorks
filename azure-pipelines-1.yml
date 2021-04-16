@@ -37,5 +37,5 @@ steps:
     azureSubscription: 'myCosmosAdvantureWorks'
     appType: 'webApp'
     appName: 'srn-csa-cosmosdbadventureworksweb'
-    package: '$(System.DefaultWorkingDirectory)/BlazorServerApp/*.zip'
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
     deploymentMethod: 'auto'
