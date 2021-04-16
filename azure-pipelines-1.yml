@@ -32,14 +32,23 @@ steps:
   displayName: 'dotnet restore'
   inputs:
     command: restore
-    projects: 'BlazorServerApp/BlazorServerApp.csproj'
-- task: VSBuild@1
+    projects: 'BlazorServerApp/*.csproj'
+- task: DotNetCoreCLI@2
+  displayName: 'Build'
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    zipAfterPublish: true
+    command: publish
+    publishWebProjects: false
+    projects: 'BlazorServerApp/*.csproj'
+    arguments: '-c $(Build.Configuration) -o $(Build.ArtifactStagingDirectory) --no-restore'
 
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+    
 - task: AzureWebApp@1
   inputs:
     azureSubscription: 'myCosmosAdvantureWorks'
