@@ -36,7 +36,7 @@ namespace CosmosDbAdventureWorksApi
                     return new NotFoundResult();
                 }
 
-                log.LogInformation("ListAllCustomers function processed a request.");
+                log.LogInformation("ListAllCustomers function request processed.");
                 return new OkObjectResult(outputItems);
             }
             catch (Exception ex)
