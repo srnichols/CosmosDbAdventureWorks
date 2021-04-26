@@ -207,7 +207,7 @@ namespace CosmosDbAdventureWorksApi
                 databaseName: "database-v4",
                 collectionName: "customer",
                 ConnectionStringSetting = "CosmosDBConnection",
-                SqlQuery = "SELECT count(c.id) as customerCount FROM c WHERE c.type = 'salesOrder'")]
+                SqlQuery = "SELECT count(c.id) as salesOrderCount FROM c WHERE c.type = 'salesOrder'")]
                 IEnumerable<SalesOrderTotals> outputItems, ILogger log)
         {
             try
