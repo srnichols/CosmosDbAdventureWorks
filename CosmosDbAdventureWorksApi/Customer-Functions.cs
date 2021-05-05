@@ -11,6 +11,10 @@ using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.OpenApi.Models;
+using System.Net;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 
 namespace CosmosDbAdventureWorksApi
 
@@ -138,6 +142,13 @@ namespace CosmosDbAdventureWorksApi
         #endregion
 
         #region GetCustomerById 
+        // Add these attribute classes below
+        [OpenApiOperation(operationId: "getCustomerById", tags: new[] { "CustomerById" }, Summary = "", Description = "Return customer data by CustomerId filter.", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter(name: "id", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "", Description = "CustomerId GUID", Visibility = OpenApiVisibilityType.Important)]
+        //[OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "Ocp-Apim-Subscription-Key", In = OpenApiSecurityLocationType.Header)]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Customer), Summary = "The response", Description = "This returns the response")]
+        // Add these attribute classes above
+
         [FunctionName("GetCustomerById")]
         public static IActionResult RunGetCustomerById(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get",
@@ -169,6 +180,13 @@ namespace CosmosDbAdventureWorksApi
         #endregion
 
         #region GetCustomerCount
+        // Add these attribute classes below
+        //[OpenApiOperation(operationId: "getCustomerCount", tags: new[] { "CustomerCount" }, Summary = "", Description = "Gets the total customer count from the customer collection.", Visibility = OpenApiVisibilityType.Important)]
+        //[OpenApiRequestBody(contentType: "application/json", bodyType: typeof(CustomerTotals))]
+        //[OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "Ocp-Apim-Subscription-Key", In = OpenApiSecurityLocationType.Header)]
+        //[OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(CustomerTotals))]
+        // Add these attribute classes above
+        
         [FunctionName("GetCustomerCount")]
         public static IActionResult RunGetCustomerCount(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get",
